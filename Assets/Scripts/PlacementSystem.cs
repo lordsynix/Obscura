@@ -6,31 +6,46 @@ using UnityEngine.UIElements;
 
 public class PlacementSystem : MonoBehaviour
 {
-    [SerializeField] private GameObject mouseIndicator, cellIndicator;
     [SerializeField] private InputManager inputManager;
     [SerializeField] private Grid grid;
     [SerializeField] private ObjectsDatabaseSO database;
     [SerializeField] private GameObject gridVisualization;
 
-    private int selectedObjectIndex = -1;
+    private GridData floorData, furnitureData;
+
+    [SerializeField]
+    private PreviewSystem preview;
+
+    [SerializeField] private ObjectPlacer objectPlacer;
+
+    private Vector3Int lastDetectedPosition = Vector3Int.zero;
+
+    IBuildingState buildingState;
+
+    [SerializeField]
+    private SoundFeedback soundFeedback;
 
     private void Start()
     {
         StopPlacement();
+        floorData = new();
+        furnitureData = new();
     }
 
     public void StartPlacement(int ID)
     {
         StopPlacement();
-        selectedObjectIndex = database.objectsData.FindIndex(data => data.ID == ID);
-
-        if (selectedObjectIndex < 0)
-        {
-            Debug.LogError($"No ID found {ID}");
-            return;
-        }
         gridVisualization.SetActive(true);
-        cellIndicator.SetActive(true);
+        buildingState = new PlacementState(ID, grid, preview, database, floorData, furnitureData, objectPlacer, soundFeedback);
+        inputManager.OnClicked += PlaceStructure;
+        inputManager.OnExit += StopPlacement;
+    }
+
+    public void StartRemoving() 
+    {
+        StopPlacement();
+        gridVisualization.SetActive(true);
+        buildingState = new RemovingState(grid, preview, floorData, furnitureData, objectPlacer, soundFeedback);
         inputManager.OnClicked += PlaceStructure;
         inputManager.OnExit += StopPlacement;
     }
@@ -43,26 +58,33 @@ public class PlacementSystem : MonoBehaviour
         }
         Vector3 mousePosition = inputManager.GetSelectedMapPosition();
         Vector3Int gridPosition = grid.WorldToCell(mousePosition);
-        GameObject newObject = Instantiate(database.objectsData[selectedObjectIndex].Prefab);
-        newObject.transform.position = grid.CellToWorld(gridPosition);
+
+        buildingState.OnAction(gridPosition);
     }
 
     private void StopPlacement()
     {
-        selectedObjectIndex = -1;
+        if (buildingState == null)
+            return;
         gridVisualization.SetActive(false);
-        cellIndicator.SetActive(false);
+        buildingState.EndState();
         inputManager.OnClicked -= PlaceStructure;
         inputManager.OnExit -= StopPlacement;
+        lastDetectedPosition = Vector3Int.zero;
+        buildingState = null;
     }
 
     private void Update()
     {
-        if (selectedObjectIndex < 0)
+        if (buildingState == null)
             return;
         Vector3 mousePosition = inputManager.GetSelectedMapPosition();
         Vector3Int gridPosition = grid.WorldToCell(mousePosition);
-        mouseIndicator.transform.position = mousePosition;
-        cellIndicator.transform.position = grid.CellToWorld(gridPosition);
+
+        if (lastDetectedPosition != gridPosition)
+        {
+            buildingState.UpdateState(gridPosition);
+            lastDetectedPosition = gridPosition;
+        }
     }
 }
