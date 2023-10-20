@@ -369,7 +369,7 @@ PrefabInstance:
         type: 3}
       propertyPath: cellIndicator
       value: 
-      objectReference: {fileID: 0}
+      objectReference: {fileID: 1139419932}
     - target: {fileID: 5967422019175385129, guid: ff0c43fe4805d5244a3375349656da1c,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -843,6 +843,12 @@ MonoBehaviour:
   m_LightCookieSize: {x: 1, y: 1}
   m_LightCookieOffset: {x: 0, y: 0}
   m_SoftShadowQuality: 0
+--- !u!1 &1139419932 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 5795493780721478970, guid: ff0c43fe4805d5244a3375349656da1c,
+    type: 3}
+  m_PrefabInstance: {fileID: 359021337}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1293761584
 GameObject:
   m_ObjectHideFlags: 0

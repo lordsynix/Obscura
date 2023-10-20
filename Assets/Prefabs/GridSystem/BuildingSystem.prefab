@@ -425,10 +425,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 772197f77865177418db04621f5e3342, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  clickSound: {fileID: 8300000, guid: 81124813ded3a8d46834a6154dc5ea7b, type: 3}
-  placeSound: {fileID: 8300000, guid: 9987f456a6216b24b81c1efac5119f63, type: 3}
-  removeSound: {fileID: 8300000, guid: 9adbc1ac0e6304741b853db74f87ba12, type: 3}
-  wrongPlacementSound: {fileID: 8300000, guid: bf53fb3d374e3da409e376b09086c26a, type: 3}
+  clickSound: {fileID: 8300000, guid: dc9ddb3c0fdee5a48ac6f934ef690db2, type: 3}
+  placeSound: {fileID: 8300000, guid: 909a778a74c84e34b8786311291867b5, type: 3}
+  removeSound: {fileID: 8300000, guid: 266b601b3d5fc2441b68299af1bd401e, type: 3}
+  wrongPlacementSound: {fileID: 8300000, guid: 3b6afbfe0a232b54c81a3a3edec95205, type: 3}
   audioSource: {fileID: 2255847601886230313}
 --- !u!82 &2255847601886230313
 AudioSource:

@@ -35,6 +35,7 @@ public class PlacementSystem : MonoBehaviour
     public void StartPlacement(int ID)
     {
         StopPlacement();
+        soundFeedback.PlaySound(SoundType.Click);
         gridVisualization.SetActive(true);
         buildingState = new PlacementState(ID, grid, preview, database, floorData, furnitureData, objectPlacer, soundFeedback);
         inputManager.OnClicked += PlaceStructure;
@@ -44,6 +45,7 @@ public class PlacementSystem : MonoBehaviour
     public void StartRemoving() 
     {
         StopPlacement();
+        soundFeedback.PlaySound(SoundType.Click);
         gridVisualization.SetActive(true);
         buildingState = new RemovingState(grid, preview, floorData, furnitureData, objectPlacer, soundFeedback);
         inputManager.OnClicked += PlaceStructure;
