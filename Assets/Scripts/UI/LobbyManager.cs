@@ -24,9 +24,6 @@ public class LobbyManager : MonoBehaviour
     public Slider playerCountSlider;
     private string mapSelection;
 
-    private LobbyEventCallbacks callbacks;
-    private ILobbyEvents events;
-
     private List<GameObject> roomsList = new List<GameObject>();
     public GameObject roomItemPrefab;
     public Transform roomContainer;
@@ -166,7 +163,7 @@ public class LobbyManager : MonoBehaviour
 
                 { "Host", new DataObject(
                     visibility: DataObject.VisibilityOptions.Public,
-                    value: PlayerData.Instance.username,
+                    value: PlayerPrefs.GetString("Username"),
                     index: DataObject.IndexOptions.S3)
                 },
             },
@@ -175,7 +172,7 @@ public class LobbyManager : MonoBehaviour
             {
                 Data = new Dictionary<string, PlayerDataObject>
                 {
-                    { "Username", new PlayerDataObject(PlayerDataObject.VisibilityOptions.Member, PlayerData.Instance.username) }
+                    { "Username", new PlayerDataObject(PlayerDataObject.VisibilityOptions.Member, PlayerPrefs.GetString("Username")) }
                 }
             }
         };
@@ -201,7 +198,7 @@ public class LobbyManager : MonoBehaviour
             {
                 Data = new Dictionary<string, PlayerDataObject>
                 {
-                    { "Username", new PlayerDataObject(PlayerDataObject.VisibilityOptions.Member, PlayerData.Instance.username) }
+                    { "Username", new PlayerDataObject(PlayerDataObject.VisibilityOptions.Member, PlayerPrefs.GetString("Username")) }
                 }
             }
         };

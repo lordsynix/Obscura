@@ -1,14 +1,16 @@
 using System.Collections;
 using System.Collections.Generic;
 using Unity.Services.Lobbies.Models;
+using Unity.Services.Relay.Models;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
 public class PlayerData : MonoBehaviour
 {
-    public string username;
     public static PlayerData Instance;
     public Lobby currentLobby;
+    public string connectionKey = string.Empty;
+    public Allocation allocation;
 
     private void Awake()
     {
