@@ -33,3 +33,8 @@ MonoBehaviour:
     <Size>k__BackingField: {x: 2, y: 1}
     <Prefab>k__BackingField: {fileID: 3493615974341626966, guid: c8183485a28237d4385a3c7ef8659faa,
       type: 3}
+  - <Name>k__BackingField: Wall
+    <ID>k__BackingField: 4
+    <Size>k__BackingField: {x: 2, y: 1}
+    <Prefab>k__BackingField: {fileID: 2955017813036566353, guid: c6a21dfbddb40a945b2ae2c652123392,
+      type: 3}
