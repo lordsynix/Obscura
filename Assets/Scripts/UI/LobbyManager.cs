@@ -97,8 +97,8 @@ public class LobbyManager : MonoBehaviour
             {
                 RoomItem roomItem = Instantiate(roomItemPrefab, roomContainer).GetComponent<RoomItem>();
                 roomItem.roomName.text = lobby.Name;
-                roomItem.mapName.text = PlayerData.Instance.currentLobby.Data["Map"].Value;
-                roomItem.hostName.text = PlayerData.Instance.currentLobby.Data["Host"].Value;
+                roomItem.mapName.text = lobby.Data["Map"].Value;
+                roomItem.hostName.text = lobby.Data["Host"].Value;
                 roomItem.SetPlayerCount(lobby.Players.Count, lobby.MaxPlayers);
 
                 roomItem.roomId = lobby.Id;
@@ -158,7 +158,7 @@ public class LobbyManager : MonoBehaviour
                 { "Map", new DataObject(
                     visibility: DataObject.VisibilityOptions.Public,
                     value: map,
-                    index: DataObject.IndexOptions.S2) 
+                    index: DataObject.IndexOptions.S2)
                 },
 
                 { "Host", new DataObject(
@@ -166,6 +166,18 @@ public class LobbyManager : MonoBehaviour
                     value: PlayerPrefs.GetString("Username"),
                     index: DataObject.IndexOptions.S3)
                 },
+
+                { "Time", new DataObject(
+                    visibility: DataObject.VisibilityOptions.Member,
+                    value: 120.ToString(),
+                    index: DataObject.IndexOptions.N1) 
+                },
+
+                { "Position", new DataObject(
+                    visibility: DataObject.VisibilityOptions.Member,
+                    value: "Select",
+                    index: DataObject.IndexOptions.S4) 
+                }
             },
 
             Player = new Player
