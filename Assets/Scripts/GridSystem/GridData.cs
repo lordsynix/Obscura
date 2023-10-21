@@ -1,11 +1,12 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class GridData
 {
     Dictionary<Vector3Int, PlacementData> placedObjects = new();
+
+    List<Vector3Int> souroundingTileOffsets = new() { new(-1, 0, 0), new(1, 0, 0), new(0, 0, -1), new(0, 0, 1) };
 
     public void AddObjectAt(Vector3Int gridPosition, Vector2Int objectSize, int ID, int placedObjectIndex)
     {
@@ -47,7 +48,7 @@ public class GridData
         return true;
     }
 
-    internal int GetRepresentationIndex(Vector3Int gridPosition)
+    public int GetRepresentationIndex(Vector3Int gridPosition)
     {
         if (placedObjects.ContainsKey(gridPosition) == false)
         {
@@ -56,12 +57,26 @@ public class GridData
         return placedObjects[gridPosition].PlacedObjectIndex;
     }
 
-    internal void RemoveObjectAt(Vector3Int gridPosition)
+    public void RemoveObjectAt(Vector3Int gridPosition)
     {
         foreach(var pos in placedObjects[gridPosition].OccupiedPositions)
         {
             placedObjects.Remove(pos);
         }
+    }
+
+    public List<Vector3Int> GetSouroundingWalls(Vector3Int gridPosition)
+    {
+        List<Vector3Int> returnVal = new();
+        foreach (var offset in souroundingTileOffsets)
+        {
+            Vector3Int pos = gridPosition + offset;
+            if (placedObjects.ContainsKey(pos) && placedObjects[pos].ID == 0)
+            {
+                returnVal.Add(pos);
+            }
+        }
+        return returnVal;
     }
 }
 
