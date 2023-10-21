@@ -17,7 +17,7 @@ public class RoomManager : MonoBehaviour
     private LobbyEventCallbacks callbacks;
     private ILobbyEvents events;
 
-    private List<GameObject> playerList = new List<GameObject>();
+    public Dictionary<string, GameObject> playerDict = new Dictionary<string, GameObject>();
     public GameObject playerItemPrefab;
     public Transform playerItemParent;
 
@@ -34,6 +34,7 @@ public class RoomManager : MonoBehaviour
     private UpdateLobbyOptions queuedUpdate;
 
     public GameObject roomPanel;
+    private bool started = false;
 
     void Start()
     {
@@ -108,20 +109,23 @@ public class RoomManager : MonoBehaviour
     {
         try
         {
-            PlayerData.Instance.currentLobby = await Lobbies.Instance.GetLobbyAsync(PlayerData.Instance.currentLobby.Id);
-            ClearList(playerList);
-
-            foreach (Player player in PlayerData.Instance.currentLobby.Players)
+            if (started == false)
             {
-                GameObject playerItem = Instantiate(playerItemPrefab, playerItemParent);
-                playerItem.GetComponent<PlayerItem>().SetPlayerData(player.Data["Username"].Value, player.Id);
-                playerList.Add(playerItem);
+                PlayerData.Instance.currentLobby = await Lobbies.Instance.GetLobbyAsync(PlayerData.Instance.currentLobby.Id);
+                ClearList(playerDict);
 
-                if (PlayerData.Instance.currentLobby.HostId == AuthenticationService.Instance.PlayerId)
+                foreach (Player player in PlayerData.Instance.currentLobby.Players)
                 {
-                    if (player.Id != AuthenticationService.Instance.PlayerId)
+                    GameObject playerItem = Instantiate(playerItemPrefab, playerItemParent);
+                    playerItem.GetComponent<PlayerItem>().SetPlayerData(player.Data["Username"].Value, player.Id);
+                    playerDict.Add(player.Id, playerItem);
+
+                    if (PlayerData.Instance.currentLobby.HostId == AuthenticationService.Instance.PlayerId)
                     {
-                        playerItem.GetComponent<PlayerItem>().EnableKick();
+                        if (player.Id != AuthenticationService.Instance.PlayerId)
+                        {
+                            playerItem.GetComponent<PlayerItem>().EnableKick();
+                        }
                     }
                 }
             }
@@ -132,13 +136,13 @@ public class RoomManager : MonoBehaviour
         }
     }
 
-    private void ClearList(List<GameObject> list)
+    private void ClearList(Dictionary<string, GameObject> list)
     {
-        foreach (GameObject go in list)
+        foreach (var item in list)
         {
-            Destroy(go);
+            Destroy(item.Value);
         }
-        playerList.Clear();
+        list.Clear();
     }
 
     private async void UpdateLobby(UpdateLobbyOptions updateLobbyOptions)
@@ -176,7 +180,6 @@ public class RoomManager : MonoBehaviour
                 string key = changes.Data.Value["ConnectionKey"].Value.Value;
                 PlayerData.Instance.connectionKey = key;
                 JoinRelay();
-                roomPanel.SetActive(false);
             }
             if (changes.Data.Value.ContainsKey("Time"))
             {
@@ -214,7 +217,6 @@ public class RoomManager : MonoBehaviour
 
         CreateRelay();
         PlayerData.Instance.currentLobby = await LobbyService.Instance.UpdateLobbyAsync(PlayerData.Instance.currentLobby.Id, updateOptions);   
-        roomPanel.SetActive(false);
     }
 
     public void ChangeSettings(string setting)
@@ -308,6 +310,8 @@ public class RoomManager : MonoBehaviour
                 );
 
             NetworkManager.Singleton.StartHost();
+            started = true;
+            StartCoroutine(GetComponent<GameManager>().CheckConnection());
         }
         catch (RelayServiceException e)
         {
@@ -331,6 +335,8 @@ public class RoomManager : MonoBehaviour
                 );
 
             NetworkManager.Singleton.StartClient();
+            started = true;
+            StartCoroutine(GetComponent<GameManager>().CheckConnection());
         }
         catch (RelayServiceException e)
         {
