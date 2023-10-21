@@ -9,8 +9,7 @@ public class PlacementState : IBuildingState
     Grid grid;
     PreviewSystem previewSystem;
     ObjectsDatabaseSO database;
-    GridData floorData;
-    GridData furnitureData;
+    GridData gridData;
     ObjectPlacer objectPlacer;
     SoundFeedback soundFeedback;
 
@@ -19,7 +18,6 @@ public class PlacementState : IBuildingState
                           PreviewSystem previewSystem,
                           ObjectsDatabaseSO database,
                           GridData floorData,
-                          GridData furnitureData,
                           ObjectPlacer objectPlacer,
                           SoundFeedback soundFeedback)
     {
@@ -27,8 +25,7 @@ public class PlacementState : IBuildingState
         this.grid = grid;
         this.previewSystem = previewSystem;
         this.database = database;
-        this.floorData = floorData;
-        this.furnitureData = furnitureData;
+        this.gridData = floorData;
         this.objectPlacer = objectPlacer;
         this.soundFeedback = soundFeedback;
 
@@ -60,10 +57,32 @@ public class PlacementState : IBuildingState
             return;
         }
         soundFeedback.PlaySound(SoundType.Place);
-        int index = objectPlacer.PlaceObject(database.objectsData[selectedObjectIndex].Prefab, grid.CellToWorld(gridPosition));
+        GameObject prefab = database.objectsData[selectedObjectIndex].Prefab;
 
-        GridData selectedData = database.objectsData[selectedObjectIndex].ID == 0 ? floorData : furnitureData;
-        selectedData.AddObjectAt(gridPosition,
+        Vector3 position = grid.CellToWorld(gridPosition);
+        Vector3 rotation = Vector3.zero;
+
+        if (selectedObjectIndex == 0)
+        {
+            // Get sourounding walls
+            var souroundingWalls = gridData.GetSouroundingWalls(gridPosition);
+            int count = souroundingWalls.Count;
+            Debug.Log($"{count} sourouding walls detected!");
+
+            if (count == 1 && souroundingWalls[0].z != gridPosition.z)
+            {
+                // Vertical Wall
+                position.z += 1;
+                rotation.y = 90;
+
+                // Update other wall
+                int representationIndex = gridData.GetRepresentationIndex(souroundingWalls[0]);
+                objectPlacer.UpdateWallRotation(representationIndex, new(0, 90, 0));
+            }
+        }
+        int index = objectPlacer.PlaceObject(prefab, position, rotation);
+
+        gridData.AddObjectAt(gridPosition,
             database.objectsData[selectedObjectIndex].Size,
             database.objectsData[selectedObjectIndex].ID,
             index);
@@ -72,9 +91,7 @@ public class PlacementState : IBuildingState
 
     private bool CheckPlacementValidity(Vector3Int gridPosition, int selectedObjectIndex)
     {
-        GridData selectedData = database.objectsData[selectedObjectIndex].ID == 0 ? floorData : furnitureData;
-
-        return selectedData.CanPlaceObjectAt(gridPosition, database.objectsData[selectedObjectIndex].Size);
+        return gridData.CanPlaceObjectAt(gridPosition, database.objectsData[selectedObjectIndex].Size);
 
     }
 

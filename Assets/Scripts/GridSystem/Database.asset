@@ -13,10 +13,10 @@ MonoBehaviour:
   m_Name: Database
   m_EditorClassIdentifier: 
   objectsData:
-  - <Name>k__BackingField: Wall_X
+  - <Name>k__BackingField: Wall
     <ID>k__BackingField: 0
-    <Size>k__BackingField: {x: 2, y: 1}
-    <Prefab>k__BackingField: {fileID: 2955017813036566353, guid: 43f6ed01d351e47408ab4747d129dbe6,
+    <Size>k__BackingField: {x: 1, y: 1}
+    <Prefab>k__BackingField: {fileID: 4474792700652820627, guid: 597e0e54f20ae2b4ab20466b2b1f2f19,
       type: 3}
   - <Name>k__BackingField: Wall_Y
     <ID>k__BackingField: 1
