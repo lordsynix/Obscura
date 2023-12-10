@@ -54,7 +54,11 @@ public class GridData
         {
             return -1;
         }
-        return placedObjects[gridPosition].PlacedObjectIndex;
+        if (placedObjects[gridPosition].ID == 0)
+        {
+            return placedObjects[gridPosition].PlacedObjectIndex;
+        }
+        return -1;
     }
 
     public void RemoveObjectAt(Vector3Int gridPosition)
@@ -73,7 +77,7 @@ public class GridData
             Vector3Int pos = gridPosition + offset;
             if (placedObjects.ContainsKey(pos) && placedObjects[pos].ID == 0)
             {
-                returnVal.Add(pos);
+                returnVal.Add(offset);
             }
         }
         return returnVal;

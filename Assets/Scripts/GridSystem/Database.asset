@@ -13,13 +13,23 @@ MonoBehaviour:
   m_Name: Database
   m_EditorClassIdentifier: 
   objectsData:
-  - <Name>k__BackingField: Wall
+  - <Name>k__BackingField: WallTile
     <ID>k__BackingField: 0
     <Size>k__BackingField: {x: 1, y: 1}
     <Prefab>k__BackingField: {fileID: 4474792700652820627, guid: 597e0e54f20ae2b4ab20466b2b1f2f19,
       type: 3}
-  - <Name>k__BackingField: Wall_Y
+  - <Name>k__BackingField: WallCorner
     <ID>k__BackingField: 1
-    <Size>k__BackingField: {x: 1, y: 2}
-    <Prefab>k__BackingField: {fileID: 2955017813036566353, guid: 3263ad32bb6351548915ad2aafe911e4,
+    <Size>k__BackingField: {x: 1, y: 1}
+    <Prefab>k__BackingField: {fileID: 6512895849626637537, guid: 5833fa6305b35d7499de5b8c94247fee,
+      type: 3}
+  - <Name>k__BackingField: WallConnection
+    <ID>k__BackingField: 2
+    <Size>k__BackingField: {x: 1, y: 1}
+    <Prefab>k__BackingField: {fileID: 4471419462212748532, guid: e75e695320daa914d8c0b54a7422a4cd,
+      type: 3}
+  - <Name>k__BackingField: WallInterception
+    <ID>k__BackingField: 3
+    <Size>k__BackingField: {x: 1, y: 1}
+    <Prefab>k__BackingField: {fileID: 6000267690832693995, guid: 95d356aac3364dc498bd08423865d90d,
       type: 3}
