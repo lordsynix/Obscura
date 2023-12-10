@@ -1,5 +1,6 @@
 using UnityEditor;
 using UnityEngine;
+using UnityEditor.Splines;
 
 [CustomEditor(typeof(SplineRoad))]
 class RoadToolWindow : Editor
