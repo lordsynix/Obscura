@@ -8,12 +8,18 @@ public class ObjectPlacer : MonoBehaviour
     [SerializeField]
     private List<GameObject> placedGameObjects = new();
 
-    public int PlaceObject(GameObject prefab, Vector3 position, Vector3 rotation)
+    public int PlaceObject(GameObject prefab, Vector3 worldPos, Vector3 position, Vector3 rotation)
     {
-        GameObject newObject = Instantiate(prefab);
-        newObject.transform.SetPositionAndRotation(position, Quaternion.Euler(rotation));
-        placedGameObjects.Add(newObject);
+        GameObject newObject = Instantiate(prefab, worldPos, Quaternion.identity);
 
+        if (position != Vector3.zero)
+        {
+            newObject.transform.GetChild(0).position = position;
+            newObject.transform.GetChild(0).position += worldPos;
+        }
+        newObject.transform.GetChild(0).rotation = Quaternion.Euler(rotation);
+
+        placedGameObjects.Add(newObject);
         return placedGameObjects.Count - 1;
     }
 
@@ -25,16 +31,21 @@ public class ObjectPlacer : MonoBehaviour
         placedGameObjects[gameObjectIndex] = null;
     }
 
-    public void UpdateWallRotation(int gameObjectIndex, Vector3 rotation)
+    public void UpdateWall(int gameObjectIndex, GameObject prefab, Vector3Int worldPos, Vector3 position, Vector3 rotation)
     {
+        Debug.Log($"Update wall: {gameObjectIndex}, {prefab}, {worldPos}, {position}, {rotation}");
         GameObject go = placedGameObjects[gameObjectIndex];
-        Debug.Log($"{go.transform.rotation.x} {go.transform.rotation.y} {go.transform.rotation.z}");
-        if (go.transform.rotation.y == 0)
-        {
-            var pos = go.transform.position;
-            pos.z += 1;
+        Destroy(go);
 
-            go.transform.SetPositionAndRotation(pos, Quaternion.Euler(rotation));
+        GameObject newObject = Instantiate(prefab, worldPos, Quaternion.identity);
+
+        if (position != Vector3.zero)
+        {
+            newObject.transform.GetChild(0).position = position;
+            newObject.transform.GetChild(0).position += worldPos;
         }
+        newObject.transform.GetChild(0).rotation = Quaternion.Euler(rotation);
+
+        placedGameObjects[gameObjectIndex] = newObject;
     }
 }
