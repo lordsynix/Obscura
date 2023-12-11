@@ -33,6 +33,9 @@ public class SplineRoad : MonoBehaviour
     public List<Intersection> intersections = new List<Intersection>();
     private List<Vector3> curveVerts;
 
+    [SerializeField]
+    private float testOffset = -5;
+
     private void Start()
     {
         m_splineContainer = GetComponent<SplineContainer>();
@@ -112,6 +115,7 @@ public class SplineRoad : MonoBehaviour
         Mesh m = new Mesh();
         List<Vector3> verts = new List<Vector3>();
         List<int> tris = new List<int>();
+        List<Vector2> uvs = new List<Vector2>();
         int offset = 0;
 
         int length = outerVerts.Count;
@@ -122,6 +126,7 @@ public class SplineRoad : MonoBehaviour
             int splineOffset = resolution * currentSplineIndex;
             splineOffset += currentSplineIndex;
             // Iterate verts and build a face
+            float uvOffset = testOffset;
             for (int currentSplinePoint = 1; currentSplinePoint < resolution + 1; currentSplinePoint++)
             {
                 int vertOffset = splineOffset + currentSplinePoint;
@@ -143,11 +148,20 @@ public class SplineRoad : MonoBehaviour
 
                 verts.AddRange(new List<Vector3> { p1, p2, p3, p4 });
                 tris.AddRange(new List<int> { t1, t2, t3, t4, t5, t6 });
+
+                float distance = Vector3.Distance(p1, p3) / 4f;
+                float uvDistance = uvOffset + distance;
+                uvs.AddRange(new List<Vector2> { new Vector2(uvOffset, 0), new Vector2(uvOffset, 1), new Vector2(uvDistance, 0), new Vector2(uvDistance, 1) });
+
+                uvOffset += distance;
             }
         }
 
         // If there are intersections between splines, they will be built here
         offset = verts.Count;
+        List<int> trisB = new List<int>();
+
+        int numVerts = verts.Count;
 
         if (intersections.Count > 0)
         {
@@ -197,8 +211,10 @@ public class SplineRoad : MonoBehaviour
                 {
                     a = junctionEdges[j - 1].left;
                     curvePoints.Add(a);
-                    b = (j < junctionEdges.Count) ? junctionEdges[j].right : junctionEdges[0].right;
+                    b = (j < junctionEdges.Count) ? junctionEdges[j].right : junctionEdges[0].right;                   
                     mid = Vector3.Lerp(a, b, 0.5f);
+                    Vector3 dir = center - mid;
+                    mid = mid - dir;
                     c = Vector3.Lerp(mid, center, intersection.curves[j-1]);
 
                     curve = new BezierCurve(a, c, b);
@@ -219,27 +235,45 @@ public class SplineRoad : MonoBehaviour
 
                 for (int j = 1; j <= curvePoints.Count; j++)
                 {
-                    verts.Add(center);
-                    verts.Add(curvePoints[j - 1]);
+                    Vector3 pointA = curvePoints[j - 1];
+                    Vector3 pointB;
+
                     if (j == curvePoints.Count)
                     {
-                        verts.Add(curvePoints[0]);
+                        pointB = curvePoints[0];
                     }
                     else
                     {
-                        verts.Add(curvePoints[j]);
+                        pointB = curvePoints[j];
                     }
 
-                    tris.Add(pointsOffset + ((j - 1) * 3) + 0);
-                    tris.Add(pointsOffset + ((j - 1) * 3) + 1);
-                    tris.Add(pointsOffset + ((j - 1) * 3) + 2);
+                    verts.Add(center);
+                    verts.Add(pointA);
+                    verts.Add(pointB);
+
+                    trisB.Add(pointsOffset + ((j - 1) * 3) + 0);
+                    trisB.Add(pointsOffset + ((j - 1) * 3) + 1);
+                    trisB.Add(pointsOffset + ((j - 1) * 3) + 2);
+
+                    uvs.Add(new Vector2(center.z, center.x));
+                    uvs.Add(new Vector2(pointA.z, pointA.x));
+                    uvs.Add(new Vector2(pointB.z, pointB.x));
                 }
             }
         }
 
+        m.subMeshCount = 2;
+
+        Debug.Log($"Verts Length: {verts.Count}, Uvs Length: {uvs.Count}");
+
         // Mesh gets created
         m.SetVertices(verts);
+
         m.SetTriangles(tris, 0);
+        m.SetTriangles(trisB, 1);
+
+        m.SetUVs(0, uvs);
+
         m_meshFilter.mesh = m;
     }
 
@@ -271,7 +305,7 @@ public class SplineRoad : MonoBehaviour
         BuildMesh();
     }
 
-    private void OnDrawGizmos()
+    private void OnDrawGizmosSelected()
     {
         Handles.matrix = transform.localToWorldMatrix;
         for (int i = 0; i < innerVerts.Count; i++)
