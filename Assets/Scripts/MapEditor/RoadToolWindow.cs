@@ -13,5 +13,9 @@ class RoadToolWindow : Editor
         {
             linkedObject.BuildMesh();
         }
+        if (GUILayout.Button("Seperate Roads"))
+        {
+            linkedObject.SeperateRoads();
+        }
     }
 }
