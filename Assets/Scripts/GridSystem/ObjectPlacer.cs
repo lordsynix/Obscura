@@ -33,7 +33,6 @@ public class ObjectPlacer : MonoBehaviour
 
     public void UpdateWall(int gameObjectIndex, GameObject prefab, Vector3Int worldPos, Vector3 position, Vector3 rotation)
     {
-        Debug.Log($"Update wall: {gameObjectIndex}, {prefab}, {worldPos}, {position}, {rotation}");
         GameObject go = placedGameObjects[gameObjectIndex];
         Destroy(go);
 

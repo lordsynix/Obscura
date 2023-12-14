@@ -26,10 +26,15 @@ MonoBehaviour:
   - <Name>k__BackingField: WallConnection
     <ID>k__BackingField: 2
     <Size>k__BackingField: {x: 1, y: 1}
-    <Prefab>k__BackingField: {fileID: 4471419462212748532, guid: e75e695320daa914d8c0b54a7422a4cd,
+    <Prefab>k__BackingField: {fileID: 7863596323804957253, guid: e75e695320daa914d8c0b54a7422a4cd,
       type: 3}
   - <Name>k__BackingField: WallInterception
     <ID>k__BackingField: 3
     <Size>k__BackingField: {x: 1, y: 1}
     <Prefab>k__BackingField: {fileID: 6000267690832693995, guid: 95d356aac3364dc498bd08423865d90d,
+      type: 3}
+  - <Name>k__BackingField: Tower
+    <ID>k__BackingField: 4
+    <Size>k__BackingField: {x: 2, y: 2}
+    <Prefab>k__BackingField: {fileID: 2786396590079718825, guid: 4866c02fc24bb504e9281ebefbcf9cd9,
       type: 3}

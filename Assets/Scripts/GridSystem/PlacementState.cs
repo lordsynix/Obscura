@@ -14,6 +14,7 @@ public class PlacementState : IBuildingState
     GridData gridData;
     ObjectPlacer objectPlacer;
     SoundFeedback soundFeedback;
+    PlacementSystem placementSystem;
 
     List<Vector3Int> tileOffsets = new() { new(-1, 0, 0), new(1, 0, 0), new(0, 0, -1), new(0, 0, 1) };
 
@@ -23,7 +24,8 @@ public class PlacementState : IBuildingState
                           ObjectsDatabaseSO database,
                           GridData floorData,
                           ObjectPlacer objectPlacer,
-                          SoundFeedback soundFeedback)
+                          SoundFeedback soundFeedback,
+                          PlacementSystem placementSystem)
     {
         ID = iD;
         this.grid = grid;
@@ -32,6 +34,7 @@ public class PlacementState : IBuildingState
         this.gridData = floorData;
         this.objectPlacer = objectPlacer;
         this.soundFeedback = soundFeedback;
+        this.placementSystem = placementSystem;
 
         selectedObjectIndex = database.objectsData.FindIndex(data => data.ID == ID);
 
@@ -54,7 +57,6 @@ public class PlacementState : IBuildingState
 
     public void OnAction(Vector3Int gridPosition)
     {
-        Debug.Log("Building wall at: " + gridPosition);
         bool placementValidity = CheckPlacementValidity(gridPosition, selectedObjectIndex);
         if (!placementValidity)
         {
@@ -67,12 +69,12 @@ public class PlacementState : IBuildingState
         Vector3 position = Vector3.zero;
         Vector3 rotation = new(-90, 0, 0);
 
-        var surWalls = gridData.GetSouroundingWalls(gridPosition);
+        var surWalls = gridData.GetSurroundingWalls(gridPosition);
+        int count = surWalls.Count;
 
         if (selectedObjectIndex == 0)
         {
             // Get sourounding walls
-            int count = surWalls.Count;
             if (count == 0)
             {
                 // Horizontal allign
@@ -166,6 +168,25 @@ public class PlacementState : IBuildingState
                 prefab = database.objectsData[3].Prefab;
             }
         }
+        else if (selectedObjectIndex == 4)  
+        {
+            if (count == 0)
+            {
+                rotation.y = -90;
+            }
+            else if (count == 1)
+            {
+                if (surWalls[0] == tileOffsets[0])
+                {
+                    rotation.y = -90;
+                }
+                else if (surWalls[0] == tileOffsets[0])
+                {
+                    rotation.y = -90;
+                }
+            }
+        }
+
         int index = objectPlacer.PlaceObject(prefab, grid.CellToWorld(gridPosition), position, rotation);
 
         gridData.AddObjectAt(gridPosition,
@@ -176,7 +197,7 @@ public class PlacementState : IBuildingState
 
         foreach (var wall in surWalls)
         {
-            UpdateWall(wall + gridPosition);
+            placementSystem.UpdateWall(wall + gridPosition);
         }
     }
 
@@ -191,111 +212,5 @@ public class PlacementState : IBuildingState
         bool placementValidity = CheckPlacementValidity(gridPosition, selectedObjectIndex);
 
         previewSystem.UpdatePosition(grid.CellToWorld(gridPosition), placementValidity);
-    }
-
-    private void UpdateWall(Vector3Int gridPosition)
-    {
-        Debug.Log("Updating wall at: " + gridPosition);
-        GameObject prefab = database.objectsData[0].Prefab;
-
-        Vector3 position = Vector3.zero;
-        Vector3 rotation = new(-90, 0, 0);
-
-        // Get sourounding walls
-        var surWalls = gridData.GetSouroundingWalls(gridPosition);
-        int count = surWalls.Count;
-        if (count == 0)
-        {
-            // Horizontal allign
-            rotation.y = 90;
-        }
-        if (count == 1)
-        {
-            // Horizontal allign
-            if (surWalls[0].x != 0)
-            {
-                rotation.y = 90;
-            }
-        }
-        else if (count == 2)
-        {
-            if (surWalls[1].z != 0)
-            {
-                if (surWalls[0].z != 0)         // vertical
-                {
-                    rotation.y = 0;
-                }
-                else if (surWalls[0].x == -1)
-                {
-                    if (surWalls[1].z == 1)     // up - left
-                    {
-                        prefab = database.objectsData[1].Prefab;
-                        position = new(0.3333333f, 1, 0.6666667f);
-                        rotation.y = -90;
-                    }
-                    else                         // down - left
-                    {
-                        prefab = database.objectsData[1].Prefab;
-                        position = new(0.3333333f, 1, 0.3333333f);
-                        rotation.y = 180;
-                    }
-                }
-                else if (surWalls[0].x == 1)
-                {
-                    if (surWalls[1].z == 1)     // up - right
-                    {
-                        prefab = database.objectsData[1].Prefab;
-                        position = new(0.6666667f, 1, 0.6666667f);
-                        rotation.y = 0;
-                    }
-                    else                         // down - right
-                    {
-                        prefab = database.objectsData[1].Prefab;
-                        position = new(0.6666667f, 1, 0.3333333f);
-                        rotation.y = 90;
-                    }
-                }
-            }
-            else
-            {
-                // horizontal
-                rotation.y = 90;
-            }
-        }
-        else if (count == 3)
-        {
-            if (!surWalls.Contains(tileOffsets[0]))
-            {
-                // right allign
-                prefab = database.objectsData[2].Prefab;
-                position = new(0.5833333f, 1, 0.5f);
-            }
-            else if (!surWalls.Contains(tileOffsets[1]))
-            {
-                // left allign
-                prefab = database.objectsData[2].Prefab;
-                position = new(0.4166667f, 1, 0.5f);
-                rotation.y = 180;
-            }
-            else if (!surWalls.Contains(tileOffsets[2]))
-            {
-                // top allign
-                prefab = database.objectsData[2].Prefab;
-                position = new(0.5f, 1, 0.5833333f);
-                rotation.y = -90;
-            }
-            else if (!surWalls.Contains(tileOffsets[3]))
-            {
-                // bottom allign
-                prefab = database.objectsData[2].Prefab;
-                position = new(0.5f, 1, 0.4166667f);
-                rotation.y = 90;
-            }
-        }
-        else if (count == 4)
-        {
-            prefab = database.objectsData[3].Prefab;
-        }
-        objectPlacer.UpdateWall(gridData.GetRepresentationIndex(gridPosition), prefab, gridPosition, position, rotation);
     }
 }
