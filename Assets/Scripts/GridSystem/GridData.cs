@@ -54,7 +54,7 @@ public class GridData
         {
             return -1;
         }
-        if (placedObjects[gridPosition].ID == 0)
+        if (placedObjects[gridPosition].ID != -1)
         {
             return placedObjects[gridPosition].PlacedObjectIndex;
         }
@@ -69,7 +69,7 @@ public class GridData
         }
     }
 
-    public List<Vector3Int> GetSouroundingWalls(Vector3Int gridPosition)
+    public List<Vector3Int> GetSurroundingWalls(Vector3Int gridPosition)
     {
         List<Vector3Int> returnVal = new();
         foreach (var offset in souroundingTileOffsets)

@@ -11,18 +11,21 @@ public class RemovingState : IBuildingState
     GridData gridData;
     ObjectPlacer objectPlacer;
     SoundFeedback soundFeedback;
+    PlacementSystem placementSystem;
 
     public RemovingState(Grid grid,
                          PreviewSystem previewSystem,
                          GridData floorData,
                          ObjectPlacer objectPlacer,
-                         SoundFeedback soundFeedback)
+                         SoundFeedback soundFeedback,
+                         PlacementSystem placementSystem)
     {
         this.grid = grid;
         this.previewSystem = previewSystem;
         this.gridData = floorData;
         this.objectPlacer = objectPlacer;
         this.soundFeedback = soundFeedback;
+        this.placementSystem = placementSystem;
 
         previewSystem.StartShowingRemovePreview();
     }
@@ -48,10 +51,19 @@ public class RemovingState : IBuildingState
         {
             soundFeedback.PlaySound(SoundType.Remove);
             gameObjectIndex = selectedData.GetRepresentationIndex(gridPosition);
+            Debug.Log("Position: " + gridPosition + " Index: " + gameObjectIndex);
             if (gameObjectIndex == -1)
                 return;
             selectedData.RemoveObjectAt(gridPosition);
             objectPlacer.RemoveObjectAt(gameObjectIndex);
+
+            var surWalls = gridData.GetSurroundingWalls(gridPosition);
+
+            foreach (var wall in surWalls)
+            {
+                placementSystem.UpdateWall(wall + gridPosition);
+            }
+
         }
         Vector3 cellPosition = grid.CellToWorld(gridPosition);
         previewSystem.UpdatePosition(cellPosition, CheckIfSelectionIsValid(gridPosition));
