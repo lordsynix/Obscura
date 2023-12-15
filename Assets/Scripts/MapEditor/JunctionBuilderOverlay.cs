@@ -63,6 +63,7 @@ public class JunctionBuilderOverlay : Overlay
 
     private void UpdateSelectionInfo()
     {
+        generateButton.visible = true;
         ClearSelectionInfo();
         List<SelectedSplineElementInfo> infos = SplineToolUtility.GetSelection();
 

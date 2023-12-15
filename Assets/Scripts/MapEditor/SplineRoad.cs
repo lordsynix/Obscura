@@ -98,8 +98,8 @@ public class SplineRoad : MonoBehaviour
 
         // Creates two points on the sides of the spline
         float3 right = Vector3.Cross(tangent, normal).normalized;
-        p1 = position + (right * width);
-        p2 = position + (-right * width);
+        p1 = position + (right * width) - (float3)transform.position;
+        p2 = position + (-right * width) - (float3)transform.position;
     }
 
     /// <summary>
@@ -214,7 +214,7 @@ public class SplineRoad : MonoBehaviour
                 uvs.AddRange(new List<Vector2> { new Vector2(uvOffset, 0), new Vector2(uvOffset, 1), new Vector2(uvDistance, 0), new Vector2(uvDistance, 1) });
 
                 // Create seperate vertices, triangles and uvs for roads to later seperate them.
-                roadVerts.AddRange(new List<Vector3> { p1, p2, p3, p4 });
+                roadVerts.AddRange(new List<Vector3> { p1 + transform.position, p2 + transform.position, p3 + transform.position, p4 + transform.position});
 
                 // We have to subtract the offset from the triangles of the seperated roads since the counting should start at 0 for a seperated mesh and not at the offset.
                 roadTris.AddRange(new List<int> { t1 - 4 * resolution * currentSplineIndex, t2 - 4 * resolution * currentSplineIndex, t3 - 4 * resolution * currentSplineIndex, t4 - 4 * resolution * currentSplineIndex, t5 - 4 * resolution * currentSplineIndex, t6 - 4 * resolution * currentSplineIndex });
@@ -407,10 +407,10 @@ public class SplineRoad : MonoBehaviour
             Handles.SphereHandleCap(0, innerVerts[i], Quaternion.identity, handleSize, EventType.Repaint);
             Handles.SphereHandleCap(0, outerVerts[i], Quaternion.identity, handleSize, EventType.Repaint);
             Handles.DrawLine(outerVerts[i], innerVerts[i]);
-        }*/
+        }
         for (int i = 0; i < curveVerts.Count; i++)
         {
             Handles.SphereHandleCap(0, curveVerts[i], Quaternion.identity, handleSize, EventType.Repaint);
-        }
+        }*/
     }
 }
