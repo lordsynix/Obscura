@@ -1,18 +1,16 @@
 using System.Collections.Generic;
-using System.Linq;
 using Unity.Mathematics;
-using Unity.VisualScripting;
 using UnityEditor;
 using UnityEditor.Splines;
 using UnityEngine;
 using UnityEngine.Splines;
-using static UnityEditor.PlayerSettings;
 
 [ExecuteInEditMode()]
 public class SplineRoad : MonoBehaviour
 {
     private List<Vector3> innerVerts;
     private List<Vector3> outerVerts;
+    private List<Vector3> tangents;
 
     [SerializeField]
     public int resolution = 8;
@@ -45,6 +43,8 @@ public class SplineRoad : MonoBehaviour
     private float editCooldown = 0.1f;
     private float editTime;
     private bool edited = false;
+
+    [SerializeField] private float colliderFrequency = 5;
 
     private void Start()
     {
@@ -94,7 +94,7 @@ public class SplineRoad : MonoBehaviour
     /// <param name="width"></param>
     /// <param name="p1"></param>
     /// <param name="p2"></param>
-    private void SampleSplineWidth(int splineIndex, float t, float width, out Vector3 p1, out Vector3 p2)
+    private void SampleSplineWidth(int splineIndex, float t, float width, out Vector3 p1, out Vector3 p2, out float3 tangent)
     {
         // Returns the position and direction of a specified point on the spline
         splineContainer.Evaluate(splineIndex, t, out position, out tangent, out normal);
@@ -112,10 +112,12 @@ public class SplineRoad : MonoBehaviour
     {
         innerVerts = new List<Vector3>();
         outerVerts = new List<Vector3>();
+        tangents = new List<Vector3>();
 
         float step = 1f / (float)resolution;
         Vector3 p1;
         Vector3 p2;
+        float3 tangent;
         
         // Creates x number of vertices based on the resolution of the road
         for (int j = 0; j < numSplines; j++)
@@ -123,14 +125,16 @@ public class SplineRoad : MonoBehaviour
             for (int i = 0; i < resolution; i++)
             {
                 float t = step * i;
-                SampleSplineWidth(j, t, m_width, out p1, out p2);
+                SampleSplineWidth(j, t, m_width, out p1, out p2, out tangent);
                 innerVerts.Add(p1);
                 outerVerts.Add(p2);
+                tangents.Add(tangent);
             }
 
-            SampleSplineWidth(j, 1f, m_width, out p1, out p2);
+            SampleSplineWidth(j, 1f, m_width, out p1, out p2, out tangent);
             innerVerts.Add(p1);
             outerVerts.Add(p2);
+            tangents.Add(tangent);
         }
     }
 
@@ -227,8 +231,9 @@ public class SplineRoad : MonoBehaviour
 
                 uvOffset += distance;               
             }
+            float roadLength = splineContainer.Splines[currentSplineIndex].GetLength();
+            Road newRoad = new Road(roadVerts, roadTris, roadUvs, roadLength);
 
-            Road newRoad = new Road(roadVerts, roadTris, roadUvs);
             roads.Add(newRoad);
         }
     }
@@ -248,7 +253,7 @@ public class SplineRoad : MonoBehaviour
             {
                 int splineIndex = junction.splineIndex;
                 float t = junction.knotIndex == 0 ? 0f : 1f;
-                SampleSplineWidth(splineIndex, t, m_width, out Vector3 p1, out Vector3 p2);
+                SampleSplineWidth(splineIndex, t, m_width, out Vector3 p1, out Vector3 p2, out float3 tangent);
 
                 if (junction.knotIndex == 0)
                 {
@@ -405,7 +410,9 @@ public class SplineRoad : MonoBehaviour
             roadMesh.SetUVs(0, roads[i].uvs);
 
             roadObject.GetComponent<MeshFilter>().mesh = roadMesh;
-            roadObject.GetComponent<MeshRenderer>().material = roadMaterial; 
+            roadObject.GetComponent<MeshRenderer>().material = roadMaterial;
+
+            BuildColliders(roads[i], roadObject);
         }
 
         for (int i = 0; i < crossRoads.Count; i++)
@@ -438,6 +445,24 @@ public class SplineRoad : MonoBehaviour
         for (int i = 0; i < crossRoadCount; i++)
         {
             DestroyImmediate(crossRoadContainer.GetChild(0).gameObject);
+        }
+    }
+
+    private void BuildColliders(Road road, GameObject roadObject)
+    {
+        float distance = road.length / colliderFrequency;
+        Vector3 start = road.verts[0];
+        Vector3 colliderDirection = (road.verts[road.verts.Count - 1] - road.verts[0]).normalized;
+        for (int i = 0; i < colliderFrequency; i++)
+        {
+            Vector3 colliderOffset = start + colliderDirection * distance * i;
+
+            GameObject child = new GameObject("Hull" + i.ToString());
+            child.transform.parent = roadObject.transform;
+            child.transform.position = colliderOffset;
+
+            BoxCollider collider =  child.AddComponent<BoxCollider>();
+            collider.size = new Vector3(distance, distance, distance);
         }
     }
 
