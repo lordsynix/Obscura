@@ -102,11 +102,13 @@ public class JunctionBuilderOverlay : Overlay
         SelectionInfoLabel.text = "Selected Intersection";
         generateButton.visible = false;
 
-        for (int i = 0; i < root.childCount; i++)
+        int childCount = root.childCount;
+        for (int i = 0; i < childCount; i++)
         {
             if (root[i].GetType() == typeof(Slider))
             {
                 root.Remove(root[i]);
+                i--;
             }
         }        
 
@@ -114,8 +116,8 @@ public class JunctionBuilderOverlay : Overlay
         {
             int value = i;
             Slider slider = new Slider($"Curve {i}", 0, 1, SliderDirection.Horizontal);
-            slider.labelElement.style.minWidth = 60;
-            slider.labelElement.style.maxWidth = 80;
+            slider.labelElement.style.minWidth = 50;
+            slider.labelElement.style.maxWidth = 20;
             slider.value = intersection.curves[i];
             slider.RegisterValueChangedCallback((x) =>
             {

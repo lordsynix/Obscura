@@ -35,8 +35,11 @@ public class SplineRoad : MonoBehaviour
     public List<Intersection> intersections = new List<Intersection>();
     private List<Vector3> curveVerts;
     private List<Road> roads;
+    private List<CrossRoad> crossRoads;
     [SerializeField] private Transform roadContainer;
     [SerializeField] private Material roadMaterial;
+    [SerializeField] private Transform crossRoadContainer;
+    [SerializeField] private Material crossRoadMaterial;
 
     private int numSplines;
     private float editCooldown = 0.1f;
@@ -135,6 +138,7 @@ public class SplineRoad : MonoBehaviour
     {
         curveVerts = new List<Vector3>();
         roads = new List<Road>();
+        crossRoads = new List<CrossRoad>();
 
         Mesh m = new Mesh();
         List<Vector3> verts = new List<Vector3>();
@@ -331,6 +335,8 @@ public class SplineRoad : MonoBehaviour
 
     private void CreateIntersectionVerts(List<Vector3> curvePoints, List<Vector3> verts, List<int> trisB, Vector3 center, int pointsOffset, List<Vector2> uvs)
     {
+        // Creates storage for vertices, triangles, and uvs that can later be seperated from the main mesh.
+        CrossRoad crossRoad = new CrossRoad(new List<Vector3>(), new List<int>(), new List<Vector2>());
 
         for (int j = 1; j <= curvePoints.Count; j++)
         {
@@ -357,7 +363,21 @@ public class SplineRoad : MonoBehaviour
             uvs.Add(new Vector2(center.z, center.x));
             uvs.Add(new Vector2(pointA.z, pointA.x));
             uvs.Add(new Vector2(pointB.z, pointB.x));
+
+            // Create seperate vertices, triangles, and uvs for intersections to later seperate the mesh.
+            crossRoad.verts.Add(center + transform.position);
+            crossRoad.verts.Add(pointA + transform.position);
+            crossRoad.verts.Add(pointB + transform.position);
+
+            crossRoad.tris.Add(((j - 1) * 3) + 0);
+            crossRoad.tris.Add(((j - 1) * 3) + 1);
+            crossRoad.tris.Add(((j - 1) * 3) + 2);
+
+            crossRoad.uvs.Add(new Vector2(center.z, center.x));
+            crossRoad.uvs.Add(new Vector2(pointA.z, pointA.x));
+            crossRoad.uvs.Add(new Vector2(pointB.z, pointB.x));
         }
+        crossRoads.Add(crossRoad);
     }
 
     public void AddJunction(Intersection intersection)
@@ -387,15 +407,37 @@ public class SplineRoad : MonoBehaviour
             roadObject.GetComponent<MeshFilter>().mesh = roadMesh;
             roadObject.GetComponent<MeshRenderer>().material = roadMaterial; 
         }
+
+        for (int i = 0; i < crossRoads.Count; i++)
+        {
+            GameObject roadObject = new GameObject(i.ToString());
+            roadObject.transform.parent = crossRoadContainer;
+            roadObject.AddComponent(typeof(MeshRenderer));
+            roadObject.AddComponent(typeof(MeshFilter));
+
+            Mesh roadMesh = new Mesh();
+            roadMesh.SetVertices(crossRoads[i].verts);
+            roadMesh.SetTriangles(crossRoads[i].tris, 0);
+            roadMesh.SetUVs(0, crossRoads[i].uvs);
+
+            roadObject.GetComponent<MeshFilter>().mesh = roadMesh;
+            roadObject.GetComponent<MeshRenderer>().material = crossRoadMaterial;
+        }
     }
 
     private void ClearRoads()
     {
-        int childCount = roadContainer.childCount;
-        for (int i = 0; i < childCount; i++)
+        int roadCount = roadContainer.childCount;
+        for (int i = 0; i < roadCount; i++)
         {
             DestroyImmediate(roadContainer.GetChild(0).gameObject);
             
+        }
+
+        int crossRoadCount = crossRoadContainer.childCount;
+        for (int i = 0; i < crossRoadCount; i++)
+        {
+            DestroyImmediate(crossRoadContainer.GetChild(0).gameObject);
         }
     }
 
