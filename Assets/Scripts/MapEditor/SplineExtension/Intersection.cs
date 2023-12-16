@@ -4,6 +4,7 @@ using UnityEngine.Splines;
 
 namespace UnityEditor.Splines
 {
+    [System.Serializable]
     public class Intersection
     {
         public List<JunctionInfo> junctions;

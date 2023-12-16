@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using Unity.Mathematics;
 using UnityEditor;
 using UnityEditor.Splines;
@@ -30,7 +32,7 @@ public class SplineRoad : MonoBehaviour
     float3 position;
     float3 normal;
 
-    public List<Intersection> intersections = new List<Intersection>();
+    public Intersection[] intersections;
     private List<Vector3> curveVerts;
     private List<Road> roads;
     private List<CrossRoad> crossRoads;
@@ -40,17 +42,12 @@ public class SplineRoad : MonoBehaviour
     [SerializeField] private Material crossRoadMaterial;
 
     private int numSplines;
-    private float editCooldown = 0.1f;
-    private float editTime;
-    private bool edited = false;
 
     [SerializeField] private int colliderFrequency = 5;
-
     private void Start()
     {
         splineContainer = GetComponent<SplineContainer>();
         meshFilter = GetComponent<MeshFilter>();
-        editTime = Time.time;
     }
 
     private void OnEnable()
@@ -66,22 +63,11 @@ public class SplineRoad : MonoBehaviour
     private void OnSplineChanged(Spline arg1, int arg2, SplineModification arg3)
     {
         BuildMesh();
+        PrefabUtility.RecordPrefabInstancePropertyModifications(this);
     }
 
     private void Update()
     {
-        if (editTime + editCooldown < Time.time)
-        {
-            if (edited)
-            {
-                if (GetComponent<MeshCollider>())
-                {
-                    DestroyImmediate(GetComponent<MeshCollider>());
-                }
-                gameObject.AddComponent<MeshCollider>();
-                edited = false;
-            }
-        }
         numSplines = splineContainer.Splines.Count;
         GetVerts();
     }
@@ -154,9 +140,12 @@ public class SplineRoad : MonoBehaviour
 
         // If there are intersections put them into seperate submesh to apply different material
         List<int> trisB = new List<int>();
-        if (intersections.Count > 0)
+        if (intersections != null)
         {
-            BuildIntersections(verts, trisB, uvs);
+            if (intersections.Length > 0)
+            {
+                BuildIntersections(verts, trisB, uvs);
+            }
         }
 
         m.subMeshCount = 2;
@@ -174,10 +163,7 @@ public class SplineRoad : MonoBehaviour
         m.SetUVs(0, uvs);
 
         // Mesh is assigned
-        meshFilter.mesh = m;
-
-        edited = true;
-        editTime = Time.time;       
+        meshFilter.mesh = m;           
     }
 
     private void BuildRoads(List<Vector3> verts, List<int> tris, List<Vector2> uvs)
@@ -244,7 +230,7 @@ public class SplineRoad : MonoBehaviour
     private void BuildIntersections(List<Vector3> verts, List<int> trisB, List<Vector2> uvs)
     {
         //Get intersection verts
-        for (int i = 0; i < intersections.Count; i++)
+        for (int i = 0; i < intersections.Length; i++)
         {
             Intersection intersection = intersections[i];
             int count = 0;
@@ -396,7 +382,8 @@ public class SplineRoad : MonoBehaviour
 
     public void AddJunction(Intersection intersection)
     {
-        intersections.Add(intersection);
+        Array.Resize(ref intersections, intersections.Length + 1);
+        intersections[intersections.Length - 1] = intersection;
         BuildMesh();
     }
 
@@ -442,8 +429,9 @@ public class SplineRoad : MonoBehaviour
             roadObject.GetComponent<MeshRenderer>().material = crossRoadMaterial;
         }
 
-        // Create road graph to store road connections in a data structure
-        roadManager.CreateRoadGraph(roads, crossRoads);
+        // Create a copy of roads and crossroads that persist in editmode;
+        roadManager.roads = roads.ToArray();
+        roadManager.crossRoads = crossRoads.ToArray();
     }
 
     private void ClearRoads()

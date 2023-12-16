@@ -4,7 +4,6 @@ using UnityEngine.EventSystems;
 public class SelectionOutline : MonoBehaviour
 {
     private Transform highlight;
-    private Transform selection;
     private RaycastHit hit;
 
     [SerializeField] private Material highlightMaterial;
@@ -21,7 +20,7 @@ public class SelectionOutline : MonoBehaviour
         if (!EventSystem.current.IsPointerOverGameObject() && Physics.Raycast(ray, out hit))
         {
             highlight = hit.transform.parent;
-            if (highlight.CompareTag("Selectable") && highlight != selection)
+            if (highlight.CompareTag("Selectable"))
             {
                 if (highlight.gameObject.GetComponent<Outline>() != null)
                 {

@@ -2,6 +2,7 @@ using UnityEngine.Splines;
 
 namespace UnityEditor.Splines
 {
+    [System.Serializable]
     public struct JunctionInfo
     {
         public int splineIndex;

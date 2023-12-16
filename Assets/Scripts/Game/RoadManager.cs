@@ -1,17 +1,21 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
-[ExecuteInEditMode()]
 public class RoadManager : MonoBehaviour
 {
     private RoadGraph roadGraph;
+    public Road[] roads;
+    public CrossRoad[] crossRoads;
 
-    public void CreateRoadGraph(List<Road> roads, List<CrossRoad> crossRoads)
+    private void Start()
+    {
+        CreateRoadGraph();
+    }
+
+    public void CreateRoadGraph()
     {
         roadGraph = new RoadGraph();
-        for (int i = 0; i < roads.Count; i++)
+        for (int i = 0; i < roads.Length; i++)
         {
             Road road = roads[i];
             int time;
@@ -30,10 +34,10 @@ public class RoadManager : MonoBehaviour
             roadGraph.AddNode(new Node(time, i));           
         }
 
-        CreateEdges(crossRoads);
+        CreateEdges();
     }
 
-    private void CreateEdges(List<CrossRoad> crossRoads)
+    private void CreateEdges()
     {
         foreach (CrossRoad crossRoad in crossRoads)
         {
@@ -53,6 +57,6 @@ public class RoadManager : MonoBehaviour
             }
         }
         roadGraph.ShortestPath(roadGraph.GetNode(0), roadGraph.GetNode(roadGraph.GetGraph().Count - 1));
-        //
+
     }
 }
