@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -5,31 +6,53 @@ using UnityEngine;
 [ExecuteInEditMode()]
 public class RoadManager : MonoBehaviour
 {
-    [SerializeField] private float size = 5;
-    private Dictionary<int, BoxCollider> splineColliderDict = new Dictionary<int, BoxCollider>();
+    private RoadGraph roadGraph;
 
-    public void CreateCollider(Vector3 p1, Vector3 p2, Vector3 p3, Vector3 p4, int splineIndex)
+    public void CreateRoadGraph(List<Road> roads, List<CrossRoad> crossRoads)
     {
-        if (!splineColliderDict.ContainsKey(splineIndex))
+        roadGraph = new RoadGraph();
+        for (int i = 0; i < roads.Count; i++)
         {
-            BoxCollider collider = gameObject.AddComponent<BoxCollider>();
-            collider.center = p3 - p1 / 2;
-            collider.size = new Vector3(size, size, size);
-            splineColliderDict.Add(splineIndex, collider);
-        }
-        else
-        {
-            if (splineColliderDict[splineIndex] == null)
+            Road road = roads[i];
+            int time;
+            if (road.length <= 200)
             {
-                splineColliderDict.Remove(splineIndex);
-                BoxCollider newCollider = gameObject.AddComponent<BoxCollider>();
-                newCollider.center = p3 - p1 / 2;
-                newCollider.size = new Vector3(size, size, size);
-                splineColliderDict.Add(splineIndex, newCollider);
+                time = 1;
             }
-            BoxCollider collider = splineColliderDict[splineIndex];
-            collider.center = p3 - p1 / 2;
-            collider.size = new Vector3(size, size, size);
-        }                               
+            else if (road.length > 200 &&  road.length <= 400)
+            {
+                time = 2;
+            }
+            else
+            {
+                time = 3;
+            }
+            roadGraph.AddNode(new Node(time, i));           
+        }
+
+        CreateEdges(crossRoads);
+    }
+
+    private void CreateEdges(List<CrossRoad> crossRoads)
+    {
+        foreach (CrossRoad crossRoad in crossRoads)
+        {
+            int srcIndex = crossRoad.involvedRoads[0];
+            for (int i = 1; i <  crossRoad.involvedRoads.Count; ++i)
+            {
+                roadGraph.AddEdge(srcIndex, crossRoad.involvedRoads[i], roadGraph.GetNode(srcIndex).time);
+                roadGraph.AddEdge(crossRoad.involvedRoads[i], srcIndex, roadGraph.GetNode(crossRoad.involvedRoads[i]).time);
+            }
+        }
+
+        foreach (var node in roadGraph.GetGraph())
+        {
+            foreach (Tuple<Node, int> tuple in node.Value)
+            {
+                Debug.Log($"Node {node.Key.index} has an edge with node {tuple.Item1.index} with a weight of {node.Key.time}");
+            }
+        }
+        roadGraph.ShortestPath(roadGraph.GetNode(0), roadGraph.GetNode(roadGraph.GetGraph().Count - 1));
+        //
     }
 }

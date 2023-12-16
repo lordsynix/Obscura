@@ -18,7 +18,7 @@ namespace UnityEditor.Splines
             }
 
             junctions.Add(new JunctionInfo(splineIndex, knotIndex, spline, knot));
-            curves.Add(0.3f);
+            curves.Add(0.5f);
         }
 
         public IEnumerable<JunctionInfo> GetJunctions()
