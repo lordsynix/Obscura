@@ -18,7 +18,6 @@ public class SelectionOutline : MonoBehaviour
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
         if (!EventSystem.current.IsPointerOverGameObject() && Physics.Raycast(ray, out hit))
         {
-            Debug.Log(hit.transform.gameObject.name);
             highlight = hit.transform.parent;
             if (highlight.CompareTag("Selectable") && highlight != selection)
             {

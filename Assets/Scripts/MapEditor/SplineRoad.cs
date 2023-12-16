@@ -44,7 +44,7 @@ public class SplineRoad : MonoBehaviour
     private float editTime;
     private bool edited = false;
 
-    [SerializeField] private float colliderFrequency = 5;
+    [SerializeField] private int colliderFrequency = 5;
 
     private void Start()
     {
@@ -188,6 +188,7 @@ public class SplineRoad : MonoBehaviour
             List<Vector3> roadVerts = new List<Vector3>();
             List<int> roadTris = new List<int>();
             List<Vector2> roadUvs = new List<Vector2>();
+            List<Vector3> roadTangents = new List<Vector3>();
 
             float uvOffset = 0;
             int splineOffset = resolution * currentSplineIndex;
@@ -204,7 +205,8 @@ public class SplineRoad : MonoBehaviour
 
                 int offset = 4 * resolution * currentSplineIndex;
                 offset += 4 * (currentSplinePoint - 1);
-
+                Vector3 tangent = tangents[currentSplinePoint * currentSplineIndex];
+    
                 int t1 = offset + 0;
                 int t2 = offset + 2;
                 int t3 = offset + 3;
@@ -228,11 +230,12 @@ public class SplineRoad : MonoBehaviour
                 roadTris.AddRange(new List<int> { t1 - 4 * resolution * currentSplineIndex, t2 - 4 * resolution * currentSplineIndex, t3 - 4 * resolution * currentSplineIndex, t4 - 4 * resolution * currentSplineIndex, t5 - 4 * resolution * currentSplineIndex, t6 - 4 * resolution * currentSplineIndex });
                 
                 roadUvs.AddRange(new List<Vector2> { new Vector2(uvOffset, 0), new Vector2(uvOffset, 1), new Vector2(uvDistance, 0), new Vector2(uvDistance, 1) });
+                roadTangents.Add(tangent);
 
                 uvOffset += distance;               
             }
             float roadLength = splineContainer.Splines[currentSplineIndex].GetLength();
-            Road newRoad = new Road(roadVerts, roadTris, roadUvs, roadLength);
+            Road newRoad = new Road(roadVerts, roadTris, roadUvs, roadTangents, roadLength);
 
             roads.Add(newRoad);
         }
@@ -401,6 +404,7 @@ public class SplineRoad : MonoBehaviour
         {            
             GameObject roadObject = new GameObject(i.ToString());
             roadObject.transform.parent = roadContainer;
+            roadObject.tag = "Selectable";
             roadObject.AddComponent(typeof(MeshRenderer));
             roadObject.AddComponent(typeof(MeshFilter));
 
@@ -418,7 +422,8 @@ public class SplineRoad : MonoBehaviour
         for (int i = 0; i < crossRoads.Count; i++)
         {
             GameObject roadObject = new GameObject(i.ToString());
-            roadObject.transform.parent = crossRoadContainer;
+            
+            roadObject.transform.parent = crossRoadContainer;            
             roadObject.AddComponent(typeof(MeshRenderer));
             roadObject.AddComponent(typeof(MeshFilter));
 
@@ -450,16 +455,15 @@ public class SplineRoad : MonoBehaviour
 
     private void BuildColliders(Road road, GameObject roadObject)
     {
+        // Creates n amount of colliders on selected vertices from road.verts list. The size of the colliders is based on the length of the road.
         float distance = road.length / colliderFrequency;
-        Vector3 start = road.verts[0];
-        Vector3 colliderDirection = (road.verts[road.verts.Count - 1] - road.verts[0]).normalized;
-        for (int i = 0; i < colliderFrequency; i++)
+        for (int i = 0; i < colliderFrequency + 1; i++)
         {
-            Vector3 colliderOffset = start + colliderDirection * distance * i;
+            Vector3 vertex = road.verts[(road.verts.Count - 1) / colliderFrequency * i];
 
             GameObject child = new GameObject("Hull" + i.ToString());
             child.transform.parent = roadObject.transform;
-            child.transform.position = colliderOffset;
+            child.transform.position = vertex;
 
             BoxCollider collider =  child.AddComponent<BoxCollider>();
             collider.size = new Vector3(distance, distance, distance);
