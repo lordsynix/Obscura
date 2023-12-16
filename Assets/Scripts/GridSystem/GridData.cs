@@ -82,6 +82,19 @@ public class GridData
         }
         return returnVal;
     }
+
+    public List<Vector3Int> GetTargetPositions()
+    {
+        List<Vector3Int> returnVal = new();
+        foreach (var entry in placedObjects)
+        {
+            if (entry.Value.ID == 6)
+            {
+                returnVal.Add(entry.Key);
+            }
+        }
+        return returnVal;
+    }
 }
 
 public class PlacementData
@@ -90,10 +103,10 @@ public class PlacementData
     public int ID { get; private set; }
     public int PlacedObjectIndex { get; private set; }
 
-    public PlacementData(List<Vector3Int> occupiedPositions, int iD, int placedObjectIndex)
+    public PlacementData(List<Vector3Int> occupiedPositions, int id, int placedObjectIndex)
     {
         OccupiedPositions = occupiedPositions;
-        ID = iD;
+        ID = id;
         PlacedObjectIndex = placedObjectIndex;
     }
 }

@@ -38,3 +38,13 @@ MonoBehaviour:
     <Size>k__BackingField: {x: 2, y: 2}
     <Prefab>k__BackingField: {fileID: 2786396590079718825, guid: 4866c02fc24bb504e9281ebefbcf9cd9,
       type: 3}
+  - <Name>k__BackingField: Gate
+    <ID>k__BackingField: 5
+    <Size>k__BackingField: {x: 2, y: 1}
+    <Prefab>k__BackingField: {fileID: 3713231914286207948, guid: a13cbe89c807c8d49a639fbacd99c177,
+      type: 3}
+  - <Name>k__BackingField: Iglu
+    <ID>k__BackingField: 6
+    <Size>k__BackingField: {x: 2, y: 2}
+    <Prefab>k__BackingField: {fileID: 1881509905704639558, guid: 5e8b5c331dc45114784d79a9f491c82b,
+      type: 3}

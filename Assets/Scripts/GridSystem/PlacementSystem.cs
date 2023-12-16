@@ -77,6 +77,11 @@ public class PlacementSystem : MonoBehaviour
         buildingState = null;
     }
 
+    public void GetTarget()
+    {
+        Debug.Log("Target: " + SearchAlgorithm.GetTarget(new(0, 0, 0), gridData));
+    }
+
     private void Update()
     {
         if (buildingState == null)
