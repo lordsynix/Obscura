@@ -25,9 +25,9 @@ public class SplineRoad : MonoBehaviour
     private MeshFilter meshFilter;
     [SerializeField]
     private SplineContainer splineContainer;
+    [SerializeField] RoadManager roadManager;
 
     float3 position;
-    float3 tangent;
     float3 normal;
 
     public List<Intersection> intersections = new List<Intersection>();
@@ -281,7 +281,7 @@ public class SplineRoad : MonoBehaviour
 
             int pointsOffset = verts.Count;
 
-            CreateIntersectionVerts(curvePoints, verts, trisB, center, pointsOffset, uvs);
+            CreateIntersectionVerts(intersection, curvePoints, verts, trisB, center, pointsOffset, uvs);
         }
     }
 
@@ -341,10 +341,10 @@ public class SplineRoad : MonoBehaviour
         return curvePoints;
     }
 
-    private void CreateIntersectionVerts(List<Vector3> curvePoints, List<Vector3> verts, List<int> trisB, Vector3 center, int pointsOffset, List<Vector2> uvs)
+    private void CreateIntersectionVerts(Intersection intersection, List<Vector3> curvePoints, List<Vector3> verts, List<int> trisB, Vector3 center, int pointsOffset, List<Vector2> uvs)
     {
         // Creates storage for vertices, triangles, and uvs that can later be seperated from the main mesh.
-        CrossRoad crossRoad = new CrossRoad(new List<Vector3>(), new List<int>(), new List<Vector2>());
+        CrossRoad crossRoad = new CrossRoad(new List<Vector3>(), new List<int>(), new List<Vector2>(), new List<int>());
 
         for (int j = 1; j <= curvePoints.Count; j++)
         {
@@ -384,6 +384,12 @@ public class SplineRoad : MonoBehaviour
             crossRoad.uvs.Add(new Vector2(center.z, center.x));
             crossRoad.uvs.Add(new Vector2(pointA.z, pointA.x));
             crossRoad.uvs.Add(new Vector2(pointB.z, pointB.x));
+        }
+
+        // Add spline road indices to the crossroads to later create an adjacency list.
+        foreach (JunctionInfo junction in intersection.GetJunctions())
+        {
+            crossRoad.involvedRoads.Add(junction.splineIndex);
         }
         crossRoads.Add(crossRoad);
     }
@@ -435,6 +441,9 @@ public class SplineRoad : MonoBehaviour
             roadObject.GetComponent<MeshFilter>().mesh = roadMesh;
             roadObject.GetComponent<MeshRenderer>().material = crossRoadMaterial;
         }
+
+        // Create road graph to store road connections in a data structure
+        roadManager.CreateRoadGraph(roads, crossRoads);
     }
 
     private void ClearRoads()
@@ -468,20 +477,5 @@ public class SplineRoad : MonoBehaviour
             BoxCollider collider =  child.AddComponent<BoxCollider>();
             collider.size = new Vector3(distance, distance, distance);
         }
-    }
-
-    private void OnDrawGizmosSelected()
-    {
-        Handles.matrix = transform.localToWorldMatrix;
-        /*for (int i = 0; i < innerVerts.Count; i++)
-        {
-            Handles.SphereHandleCap(0, innerVerts[i], Quaternion.identity, handleSize, EventType.Repaint);
-            Handles.SphereHandleCap(0, outerVerts[i], Quaternion.identity, handleSize, EventType.Repaint);
-            Handles.DrawLine(outerVerts[i], innerVerts[i]);
-        }
-        for (int i = 0; i < curveVerts.Count; i++)
-        {
-            Handles.SphereHandleCap(0, curveVerts[i], Quaternion.identity, handleSize, EventType.Repaint);
-        }*/
     }
 }

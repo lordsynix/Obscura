@@ -7,6 +7,8 @@ public class SelectionOutline : MonoBehaviour
     private Transform selection;
     private RaycastHit hit;
 
+    [SerializeField] private Material highlightMaterial;
+
     private void Update()
     {
         if (highlight != null)
@@ -29,37 +31,13 @@ public class SelectionOutline : MonoBehaviour
                 {
                     Debug.Log("Added Outline");
                     Outline outline = highlight.gameObject.AddComponent<Outline>();
+                    outline.highlightMaterial = highlightMaterial;
                     outline.enabled = true;
-                    highlight.gameObject.GetComponent<Outline>().OutlineColor = Color.green;
-                    highlight.gameObject.GetComponent<Outline>().OutlineWidth = 7.0f;
                 }
             }
             else
             {
                 highlight = null;
-            }
-        }
-
-        // Selection
-        if (Input.GetMouseButtonDown(0))
-        {
-            if (highlight)
-            {
-                if (selection != null)
-                {
-                    selection.gameObject.GetComponent<Outline>().enabled = false;
-                }
-                selection = hit.transform;
-                selection.gameObject.GetComponent<Outline>().enabled = true;
-                highlight = null;
-            }
-            else
-            {
-                if (selection)
-                {
-                    selection.gameObject.GetComponent<Outline>().enabled = false;
-                    selection = null;
-                }
             }
         }
     }
