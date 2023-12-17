@@ -82,7 +82,7 @@ public class PlacementSystem : MonoBehaviour
 
     public void GetTarget()
     {
-        Vector3Int startPos = new(-5, 0, -5);
+        Vector3Int startPos = new(-10, 0, -10);
         var target = SearchAlgorithm.GetTarget(startPos, gridData);
         var path = SearchAlgorithm.GetPath(startPos, target, gridData);
 

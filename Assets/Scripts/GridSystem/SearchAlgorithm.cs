@@ -5,16 +5,16 @@ using UnityEngine;
 
 public static class SearchAlgorithm
 {
-    private static Vector3Int upperBorder = new Vector3Int(4, 0, 4);    
-    private static Vector3Int lowerBorder = new Vector3Int(-5, 0, -5);
+    private static Vector3Int upperBorder = new Vector3Int(9, 0, 9);    
+    private static Vector3Int lowerBorder = new Vector3Int(-10, 0, -10);
 
     private static List<Vector3Int> tileOffsets = new() { new(-1, 0, 0), new(1, 0, 0), new(0, 0, -1), new(0, 0, 1),
                                                           new(-1, 0, -1), new(-1, 0, 1), new(1, 0, -1), new(1, 0, 1)};
 
     private static int directPathWeight = 10;
     private static int diagonalPathWeight = 14;
-    private static int wallWeigth = 100;
-    private static int towerWeigth = 200;
+    private static int wallWeigth = 180;
+    private static int towerWeigth = 360;
     private static int gateWeight = 150;
 
     public static Vector3Int GetTarget(Vector3Int startPosition, GridData gridData)
@@ -35,7 +35,7 @@ public static class SearchAlgorithm
         // Search
         while (!foundTarget)
         {
-            if (index > 100) break;
+            if (index > 400) break;
 
             foreach (var offset in tileOffsets)
             {
@@ -154,7 +154,7 @@ public static class SearchAlgorithm
         List<Vector3Int> path = new();
         while (true)
         {
-            if (path.Count > 100)
+            if (path.Count > 400)
             {
                 Debug.LogError("Cycles in path");
                 break;

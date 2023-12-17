@@ -365,6 +365,16 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 197135610765022783, guid: ff0c43fe4805d5244a3375349656da1c,
+        type: 3}
+      propertyPath: m_LocalScale.x
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 197135610765022783, guid: ff0c43fe4805d5244a3375349656da1c,
+        type: 3}
+      propertyPath: m_LocalScale.z
+      value: 2
+      objectReference: {fileID: 0}
     - target: {fileID: 4175084968938673828, guid: ff0c43fe4805d5244a3375349656da1c,
         type: 3}
       propertyPath: cellIndicator
@@ -440,6 +450,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: BuildingSystem
+      objectReference: {fileID: 0}
+    - target: {fileID: 7008879877432457257, guid: ff0c43fe4805d5244a3375349656da1c,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7707827479975784782, guid: ff0c43fe4805d5244a3375349656da1c,
         type: 3}
@@ -632,7 +647,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1.1, y: 1.1, z: 1.1}
+  m_LocalScale: {x: 2.1, y: 2.1, z: 2.1}
   m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 0}
