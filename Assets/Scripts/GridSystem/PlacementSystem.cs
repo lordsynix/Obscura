@@ -11,6 +11,9 @@ public class PlacementSystem : MonoBehaviour
     [SerializeField] private ObjectsDatabaseSO database;
     [SerializeField] private GameObject gridVisualization;
 
+    [SerializeField] private GameObject cellHighlightPrefab;
+    [SerializeField] private Material cellHighlightMaterial;
+
     private GridData gridData;
 
     [SerializeField]
@@ -79,7 +82,28 @@ public class PlacementSystem : MonoBehaviour
 
     public void GetTarget()
     {
-        Debug.Log("Target: " + SearchAlgorithm.GetTarget(new(0, 0, 0), gridData));
+        Vector3Int startPos = new(-5, 0, -5);
+        var target = SearchAlgorithm.GetTarget(startPos, gridData);
+        var path = SearchAlgorithm.GetPath(startPos, target, gridData);
+
+        StartCoroutine(VisualizePath(path));
+    }
+
+    IEnumerator VisualizePath(List<Vector3Int> path)
+    {
+        var pos = grid.CellToWorld(path[0]);
+
+        var go = Instantiate(cellHighlightPrefab, pos, Quaternion.identity);
+        go.GetComponentInChildren<MeshRenderer>().material = cellHighlightMaterial;
+        go.SetActive(true);
+
+        for (int i = 0; i < path.Count; i++)
+        {
+            go.transform.position = path[i];
+            yield return new WaitForSeconds(0.5f);
+        }
+
+        Destroy(go);
     }
 
     private void Update()

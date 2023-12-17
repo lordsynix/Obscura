@@ -370,6 +370,22 @@ PrefabInstance:
       propertyPath: cellIndicator
       value: 
       objectReference: {fileID: 1139419932}
+    - target: {fileID: 4417581217187727190, guid: ff0c43fe4805d5244a3375349656da1c,
+        type: 3}
+      propertyPath: cellHighlightPrefab
+      value: 
+      objectReference: {fileID: 3706936160302216349, guid: 30f2366165d3b6c40aeff9b3fc64b0c6,
+        type: 3}
+    - target: {fileID: 4417581217187727190, guid: ff0c43fe4805d5244a3375349656da1c,
+        type: 3}
+      propertyPath: cellHighlightMaterial
+      value: 
+      objectReference: {fileID: 2100000, guid: 0be48a4dd323c8f4ab7c93589d1337ba, type: 2}
+    - target: {fileID: 5795493780721478970, guid: ff0c43fe4805d5244a3375349656da1c,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 5967422019175385129, guid: ff0c43fe4805d5244a3375349656da1c,
         type: 3}
       propertyPath: m_LocalPosition.x
