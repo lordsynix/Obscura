@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class RoadManager : MonoBehaviour
@@ -6,6 +7,8 @@ public class RoadManager : MonoBehaviour
     private RoadGraph roadGraph;
     public Road[] roads;
     public CrossRoad[] crossRoads;
+    private Dictionary<Node, GameObject> roadObjects = new Dictionary<Node, GameObject>();
+    [SerializeField] private Transform roadContainer;
 
     private void Start()
     {
@@ -31,7 +34,13 @@ public class RoadManager : MonoBehaviour
             {
                 time = 3;
             }
-            roadGraph.AddNode(new Node(time, i));           
+            Node node = new Node(time, i);
+            roadGraph.AddNode(node);
+
+            // Map nodes to road gameobjects
+            GameObject roadObject = roadContainer.GetChild(i).gameObject;
+            roadObjects.Add(node, roadObject);
+            Debug.Log(node.index + " " + roadObject.gameObject.name);
         }
 
         CreateEdges();
