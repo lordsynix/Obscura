@@ -175,11 +175,6 @@ public class RoadGraph
             }
         }
 
-        foreach (var node in shortestPath)
-        {
-            Debug.Log($"The lowest weight for node {node.Key.index} is {node.Value}");
-        }
-
         return shortestPath;
     }
 }

@@ -40,7 +40,6 @@ public class RoadManager : MonoBehaviour
             // Map nodes to road gameobjects
             GameObject roadObject = roadContainer.GetChild(i).gameObject;
             roadObjects.Add(node, roadObject);
-            Debug.Log(node.index + " " + roadObject.gameObject.name);
         }
 
         CreateEdges();
