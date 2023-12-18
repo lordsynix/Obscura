@@ -1,20 +1,18 @@
-using System.Collections;
-using System.Collections.Generic;
+using Unity.Collections;
 using Unity.Netcode;
 using Unity.Services.Authentication;
-using UnityEngine;
 
 public class PlayerNetwork : NetworkBehaviour
 {
-    public string username = string.Empty;
+    public NetworkVariable<FixedString64Bytes> username = new NetworkVariable<FixedString64Bytes>(string.Empty, writePerm: NetworkVariableWritePermission.Owner);
     public string id;
 
     public override void OnNetworkSpawn()
     {
         if (IsOwner)
         {
-            username = PlayerPrefs.GetString("Username");
-            id = AuthenticationService.Instance.PlayerId;            ;
+            username.Value = PlayerData.Instance.username;
+            id = AuthenticationService.Instance.PlayerId;
             RequestInfoServerRpc();
         }       
     }
@@ -27,14 +25,13 @@ public class PlayerNetwork : NetworkBehaviour
         }
     }
 
-    [ServerRpc(RequireOwnership = false)] private void UpdateInfoServerRpc(string username, string id)
+    [ServerRpc(RequireOwnership = false)] private void UpdateInfoServerRpc(string id)
     {
-        UpdateInfoClientRpc(username, id);
+        UpdateInfoClientRpc(id);
     }
 
-    [ClientRpc] private void UpdateInfoClientRpc(string username, string id)
+    [ClientRpc] private void UpdateInfoClientRpc(string id)
     {
-        this.username = username;
         this.id = id;
     }
 
@@ -45,8 +42,7 @@ public class PlayerNetwork : NetworkBehaviour
 
     [ClientRpc] private void SendInfoClientRpc()
     {
-        username = PlayerPrefs.GetString("Username");
         id = AuthenticationService.Instance.PlayerId;
-        UpdateInfoServerRpc(username, id);
+        UpdateInfoServerRpc(id);
     }
 }

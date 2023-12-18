@@ -184,7 +184,7 @@ public class LobbyManager : MonoBehaviour
             {
                 Data = new Dictionary<string, PlayerDataObject>
                 {
-                    { "Username", new PlayerDataObject(PlayerDataObject.VisibilityOptions.Member, PlayerPrefs.GetString("Username")) }
+                    { "Username", new PlayerDataObject(PlayerDataObject.VisibilityOptions.Member, PlayerData.Instance.username) }
                 }
             }
         };
@@ -210,7 +210,7 @@ public class LobbyManager : MonoBehaviour
             {
                 Data = new Dictionary<string, PlayerDataObject>
                 {
-                    { "Username", new PlayerDataObject(PlayerDataObject.VisibilityOptions.Member, PlayerPrefs.GetString("Username")) }
+                    { "Username", new PlayerDataObject(PlayerDataObject.VisibilityOptions.Member, PlayerData.Instance.username) }
                 }
             }
         };

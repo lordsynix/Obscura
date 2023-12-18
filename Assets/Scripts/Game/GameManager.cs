@@ -1,8 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using Unity.Netcode;
-using UnityEditor.PackageManager;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -10,6 +8,7 @@ public class GameManager : NetworkBehaviour
 {
     public static GameManager Instance;
     private RoomManager roomManager;
+    private RoadManager roadManager;
     public GameObject gameOverlayPanel;
     private float maxConnectionTime = 15;
     private bool started = false;
@@ -20,10 +19,16 @@ public class GameManager : NetworkBehaviour
     public Text actionText;
     private int currentTurnIndex = 0;
 
+    private GameEvents gameEvents;
+
+    public List<string> colors = new List<string>() { "Red", "Blue", "Green", "Yellow", "Magenta", "Cyan" };
+
     private void Start()
     {
         Instance = this;
         roomManager = GetComponent<RoomManager>();
+        roadManager = GetComponent<RoadManager>();
+        gameEvents = GetComponent<GameEvents>();
     }
 
     private void Update()
@@ -71,7 +76,7 @@ public class GameManager : NetworkBehaviour
                 if (client.PlayerObject.GetComponent<PlayerNetwork>().id == player.Key)
                 {
                     active = true;
-                    Debug.Log("Connected " + client.PlayerObject.GetComponent<PlayerNetwork>().username);
+                    Debug.Log("Connected " + client.PlayerObject.GetComponent<PlayerNetwork>().username.Value);
                 }
             }  
             if (active == false)
@@ -134,12 +139,13 @@ public class GameManager : NetworkBehaviour
         }
     
         countdownText.text = "0";
+        actionText.text = "0";
         yield return new WaitForSeconds(1);
 
         if (PlayerData.Instance.currentLobby.Data["Position"].Value == "Select")
         {
             actionText.text = "Build your castle!";
-            yield return new WaitForSeconds(2);
+            yield return new WaitForSeconds(1);
         }
 
         if (IsServer)
@@ -173,7 +179,18 @@ public class GameManager : NetworkBehaviour
 
     [ClientRpc] private void StartTerritorySelectionClientRpc(ulong clientId)
     {
-        actionText.text = $"{networkDict[clientId].username}s Turn!";
+        actionText.text = $"{networkDict[clientId].username.Value}s Turn!";
+
+        // Allow player to interact with the map when it's their turn.
+        if (NetworkManager.LocalClientId == clientId)
+        {
+            gameEvents.EnableCastlePlacement();
+        }
+        else
+        {
+            gameEvents.DisplayTurnInformation(networkDict[clientId].username.Value.ToString(), true);
+        }
+
         StartCoroutine(TerritorySelectTimer());
     }
 
@@ -211,7 +228,18 @@ public class GameManager : NetworkBehaviour
 
     [ClientRpc] private void StartTurnClientRpc(ulong clientId)
     {
-        actionText.text = $"{networkDict[clientId].username}s Turn!";
+        actionText.text = $"{networkDict[clientId].username.Value}s Turn!";
+
+        // Allow player to interact with the map when it's their turn.
+        if (NetworkManager.Singleton.LocalClientId == clientId)
+        {
+            gameEvents.EnableInteraction();
+        }
+        else
+        {
+            gameEvents.DisplayTurnInformation(networkDict[clientId].username.Value.ToString(), false);
+        }
+
         StartCoroutine(TurnTimer());
     }
 
@@ -238,6 +266,32 @@ public class GameManager : NetworkBehaviour
                 currentTurnIndex = 0;
             }
             StartTurnClientRpc(moveQueue[currentTurnIndex]);
+        }
+    }
+
+    [ServerRpc(RequireOwnership = false)] public void BuildCastleServerRpc(int roadIndex, ulong clientId)
+    {
+        if (roadManager.RoadOccupied(roadIndex))
+        {
+            DisplayErrorClientRpc("This road is already occupied!", clientId);
+        }
+        else
+        {
+            BuildCastleClientRpc(roadIndex, clientId);
+        }
+    }
+
+    [ClientRpc] private void BuildCastleClientRpc(int roadIndex, ulong clientId)
+    {
+        roadManager.BuildCastle(roadIndex, clientId);
+    }
+
+    [ClientRpc] private void DisplayErrorClientRpc(string error, ulong clientId)
+    {
+        if (NetworkManager.Singleton.LocalClientId == clientId)
+        {
+            GameError.Instance.DisplayError(error);
+            gameEvents.EnableCastlePlacement();
         }
     }
 }

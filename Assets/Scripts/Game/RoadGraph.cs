@@ -183,10 +183,12 @@ public class Node
 { 
     public int time;
     public int index;
+    public ulong ownerIndex;
 
     public Node(int time, int index)
     {
         this.time = time;
         this.index = index;
+        ownerIndex = ulong.MaxValue;
     }
 }

@@ -7,6 +7,7 @@ using UnityEngine.SceneManagement;
 
 public class PlayerData : MonoBehaviour
 {
+    public string username = string.Empty;
     public static PlayerData Instance;
     public Lobby currentLobby;
     public string connectionKey = string.Empty;

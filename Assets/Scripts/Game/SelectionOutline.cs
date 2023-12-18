@@ -1,13 +1,23 @@
+using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
 public class SelectionOutline : MonoBehaviour
 {
+    private GameManager gameManager;
     private Transform highlight;
     private RaycastHit hit;
     private GameObject[] selection = new GameObject[2];
     [SerializeField] private Material yellowHighlightMaterial;
     [SerializeField] private Material redHighlightMaterial;
+
+    public bool interaction = false;
+    public bool build = false;
+
+    private void Start()
+    {
+        gameManager = GetComponent<GameManager>();
+    }
 
     private void Update()
     {
@@ -24,6 +34,8 @@ public class SelectionOutline : MonoBehaviour
         {
             selection[1].GetComponent<Outline>().enabled = true;
         }
+
+        if (interaction == false) return;
 
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
         if (!EventSystem.current.IsPointerOverGameObject() && Physics.Raycast(ray, out hit) && selection[1] == null)
@@ -71,9 +83,16 @@ public class SelectionOutline : MonoBehaviour
         }
         // Selection
         if (Input.GetMouseButtonDown(0))
-        {
+        {            
             if (highlight)
             {
+                if (build)
+                {
+                    build = false;
+                    interaction = false;
+                    GameManager.Instance.BuildCastleServerRpc(int.Parse(highlight.gameObject.name), NetworkManager.Singleton.LocalClientId);                   
+                    return;
+                }
                 if (selection[0] == null)
                 {
                     selection[0] = highlight.gameObject;

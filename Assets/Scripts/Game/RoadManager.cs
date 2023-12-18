@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
+using Unity.Netcode;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class RoadManager : MonoBehaviour
 {
@@ -9,6 +11,9 @@ public class RoadManager : MonoBehaviour
     public CrossRoad[] crossRoads;
     private Dictionary<Node, GameObject> roadObjects = new Dictionary<Node, GameObject>();
     [SerializeField] private Transform roadContainer;
+
+    [SerializeField] private GameObject castlePrefab;
+    [SerializeField] private Transform uiContainer;
 
     private void Start()
     {
@@ -66,5 +71,53 @@ public class RoadManager : MonoBehaviour
         }
         roadGraph.ShortestPath(roadGraph.GetNode(0), roadGraph.GetNode(roadGraph.GetGraph().Count - 1));
 
+    }
+
+    public bool RoadOccupied(int roadIndex)
+    {
+        if (roadGraph.GetNode(roadIndex).ownerIndex == ulong.MaxValue)
+        {
+            return false;
+        }
+        return true;
+    }
+
+    public void BuildCastle(int roadIndex, ulong clientId)
+    {
+        Node node = roadGraph.GetNode(roadIndex);
+        node.ownerIndex = clientId;
+
+        Mesh mesh = roadObjects[node].GetComponent<MeshFilter>().mesh;
+        Vector3 worldPosition = mesh.vertices[(mesh.vertices.Length - 1) / 2];
+        Vector3 uiPosition = Camera.main.WorldToScreenPoint(worldPosition);
+
+        GameObject castle = Instantiate(castlePrefab, uiContainer);
+        castle.transform.position = uiPosition;
+
+        Color color = new Color();
+        
+        switch (GameManager.Instance.colors[(int)clientId])
+        {
+            case "Red":
+                color = new Color(1, 0, 0, 1);
+                break;
+            case "Blue":
+                color = new Color(0, 0, 1, 1);
+                break;
+            case "Green":
+                color = new Color(0, 1, 0, 1);
+                break;
+            case "Yellow":
+                color = new Color(1, 1, 0, 1);
+                break;
+            case "Magenta":
+                color = new Color(1, 0, 1, 1);
+                break;
+            case "Cyan":
+                color = new Color(0, 1, 1, 1);
+                break;
+        }
+
+        castle.GetComponent<Image>().color = color;
     }
 }

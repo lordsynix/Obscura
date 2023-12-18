@@ -13,7 +13,7 @@ public class MenuManager : MonoBehaviour
     {
         if (usernameInput.text.ToCharArray().Length <= 15)
         {
-            PlayerPrefs.SetString("Username", usernameInput.text);
+            PlayerData.Instance.username = usernameInput.text;
             SceneManager.LoadScene("Lobby");      
         }
         else
