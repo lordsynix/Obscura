@@ -365,11 +365,37 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 197135610765022783, guid: ff0c43fe4805d5244a3375349656da1c,
+        type: 3}
+      propertyPath: m_LocalScale.x
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 197135610765022783, guid: ff0c43fe4805d5244a3375349656da1c,
+        type: 3}
+      propertyPath: m_LocalScale.z
+      value: 2
+      objectReference: {fileID: 0}
     - target: {fileID: 4175084968938673828, guid: ff0c43fe4805d5244a3375349656da1c,
         type: 3}
       propertyPath: cellIndicator
       value: 
       objectReference: {fileID: 1139419932}
+    - target: {fileID: 4417581217187727190, guid: ff0c43fe4805d5244a3375349656da1c,
+        type: 3}
+      propertyPath: cellHighlightPrefab
+      value: 
+      objectReference: {fileID: 3706936160302216349, guid: 30f2366165d3b6c40aeff9b3fc64b0c6,
+        type: 3}
+    - target: {fileID: 4417581217187727190, guid: ff0c43fe4805d5244a3375349656da1c,
+        type: 3}
+      propertyPath: cellHighlightMaterial
+      value: 
+      objectReference: {fileID: 2100000, guid: 0be48a4dd323c8f4ab7c93589d1337ba, type: 2}
+    - target: {fileID: 5795493780721478970, guid: ff0c43fe4805d5244a3375349656da1c,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 5967422019175385129, guid: ff0c43fe4805d5244a3375349656da1c,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -424,6 +450,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: BuildingSystem
+      objectReference: {fileID: 0}
+    - target: {fileID: 7008879877432457257, guid: ff0c43fe4805d5244a3375349656da1c,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7707827479975784782, guid: ff0c43fe4805d5244a3375349656da1c,
         type: 3}
@@ -616,7 +647,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1.1, y: 1.1, z: 1.1}
+  m_LocalScale: {x: 2.1, y: 2.1, z: 2.1}
   m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 0}
@@ -788,8 +819,8 @@ RectTransform:
   - {fileID: 1678493293}
   - {fileID: 768127291}
   - {fileID: 1967270691}
-  - {fileID: 1293761585}
   - {fileID: 1261265381}
+  - {fileID: 1293761585}
   m_Father: {fileID: 16899137}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0}
@@ -1069,12 +1100,12 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 359021338}
         m_TargetAssemblyTypeName: PlacementSystem, Assembly-CSharp
-        m_MethodName: GetTarget
-        m_Mode: 1
+        m_MethodName: StartPlacement
+        m_Mode: 3
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 4
+          m_IntArgument: 7
           m_FloatArgument: 0
           m_StringArgument: 
           m_BoolArgument: 0
@@ -1600,7 +1631,7 @@ Transform:
   m_GameObject: {fileID: 2123956321}
   serializedVersion: 2
   m_LocalRotation: {x: 0.56201124, y: 0, z: 0, w: 0.82712966}
-  m_LocalPosition: {x: 0, y: 7.91, z: -4.2}
+  m_LocalPosition: {x: 0, y: 15.7, z: -8.58}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

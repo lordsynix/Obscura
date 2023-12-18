@@ -48,6 +48,18 @@ public class GridData
         return true;
     }
 
+    public int TraversableWeight(Vector3Int gridPosition, int wallWeigth, int towerWeight, int gateWeight)
+    {
+        if (placedObjects.ContainsKey(gridPosition))
+        {
+            int id = placedObjects[gridPosition].ID;
+            if (id == 0 || id == 1 || id == 2 || id == 3) return wallWeigth;
+            else if (id == 4) return towerWeight;
+            else if (id == 5) return gateWeight;
+        }
+        return 0;
+    }
+
     public int GetRepresentationIndex(Vector3Int gridPosition)
     {
         if (placedObjects.ContainsKey(gridPosition) == false)

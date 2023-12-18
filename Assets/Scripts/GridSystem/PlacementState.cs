@@ -186,7 +186,7 @@ public class PlacementState : IBuildingState
                 }
             }
         }
-
+        
         int index = objectPlacer.PlaceObject(prefab, grid.CellToWorld(gridPosition), position, rotation);
 
         gridData.AddObjectAt(gridPosition,

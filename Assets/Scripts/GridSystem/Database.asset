@@ -48,3 +48,8 @@ MonoBehaviour:
     <Size>k__BackingField: {x: 2, y: 2}
     <Prefab>k__BackingField: {fileID: 1881509905704639558, guid: 5e8b5c331dc45114784d79a9f491c82b,
       type: 3}
+  - <Name>k__BackingField: TestCapsule
+    <ID>k__BackingField: 7
+    <Size>k__BackingField: {x: 1, y: 1}
+    <Prefab>k__BackingField: {fileID: 1881509905704639558, guid: 5e8b5c331dc45114784d79a9f491c82b,
+      type: 3}
