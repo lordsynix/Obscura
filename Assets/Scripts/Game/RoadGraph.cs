@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Collections;
 using UnityEngine;
 
 public class RoadGraph
@@ -183,12 +184,20 @@ public class Node
 { 
     public int time;
     public int index;
-    public ulong ownerIndex;
+
+    public ulong left;
+    public ulong right;
+    public ulong center;
+
+    public Castle castle;
 
     public Node(int time, int index)
     {
         this.time = time;
-        this.index = index;
-        ownerIndex = ulong.MaxValue;
+        this.index = index;        
+        left = ulong.MaxValue;
+        right = ulong.MaxValue;
+        center = ulong.MaxValue;
+        castle = null;
     }
 }

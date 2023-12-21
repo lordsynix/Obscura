@@ -13,6 +13,8 @@ public class PlayerData : MonoBehaviour
     public string connectionKey = string.Empty;
     public Allocation allocation;
 
+    [SerializeField] private GameObject settingsPanel;
+
     private void Awake()
     {
         Instance = this;
@@ -22,5 +24,25 @@ public class PlayerData : MonoBehaviour
     {
         DontDestroyOnLoad(gameObject);
         SceneManager.LoadScene("Menu");
+    }
+
+    private void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            ToggleSettings();
+        }
+    }
+
+    public void ToggleSettings()
+    {
+        if (settingsPanel.activeInHierarchy)
+        {
+            settingsPanel.SetActive(false);
+        }
+        else
+        {
+            settingsPanel.SetActive(true);
+        }
     }
 }

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Unity.Netcode;
+using UnityEditor.PackageManager;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -9,7 +10,7 @@ public class RoadManager : MonoBehaviour
     private RoadGraph roadGraph;
     public Road[] roads;
     public CrossRoad[] crossRoads;
-    private Dictionary<Node, GameObject> roadObjects = new Dictionary<Node, GameObject>();
+    public Dictionary<Node, GameObject> roadObjects = new Dictionary<Node, GameObject>();
     [SerializeField] private Transform roadContainer;
 
     [SerializeField] private GameObject castlePrefab;
@@ -75,7 +76,7 @@ public class RoadManager : MonoBehaviour
 
     public bool RoadOccupied(int roadIndex)
     {
-        if (roadGraph.GetNode(roadIndex).ownerIndex == ulong.MaxValue)
+        if (roadGraph.GetNode(roadIndex).castle == null)
         {
             return false;
         }
@@ -85,39 +86,23 @@ public class RoadManager : MonoBehaviour
     public void BuildCastle(int roadIndex, ulong clientId)
     {
         Node node = roadGraph.GetNode(roadIndex);
-        node.ownerIndex = clientId;
-
+        Castle castle = new Castle(10, 5, 0, 0, clientId);
+        node.castle = castle;
+        node.center = clientId;
+        GetComponent<GameUI>().BuildCastleUI(node, clientId);
+    }
+    
+    public Vector3 GetMiddleVertexPosition(Node node)
+    {
         Mesh mesh = roadObjects[node].GetComponent<MeshFilter>().mesh;
         Vector3 worldPosition = mesh.vertices[(mesh.vertices.Length - 1) / 2];
         Vector3 uiPosition = Camera.main.WorldToScreenPoint(worldPosition);
-
-        GameObject castle = Instantiate(castlePrefab, uiContainer);
-        castle.transform.position = uiPosition;
-
-        Color color = new Color();
         
-        switch (GameManager.Instance.colors[(int)clientId])
-        {
-            case "Red":
-                color = new Color(1, 0, 0, 1);
-                break;
-            case "Blue":
-                color = new Color(0, 0, 1, 1);
-                break;
-            case "Green":
-                color = new Color(0, 1, 0, 1);
-                break;
-            case "Yellow":
-                color = new Color(1, 1, 0, 1);
-                break;
-            case "Magenta":
-                color = new Color(1, 0, 1, 1);
-                break;
-            case "Cyan":
-                color = new Color(0, 1, 1, 1);
-                break;
-        }
+        return uiPosition;
+    }
 
-        castle.GetComponent<Image>().color = color;
+    public Node GetNode(int roadIndex)
+    {
+        return roadGraph.GetNode(roadIndex);
     }
 }
