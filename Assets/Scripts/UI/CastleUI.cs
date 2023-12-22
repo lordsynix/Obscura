@@ -6,11 +6,7 @@ using UnityEngine.UI;
 
 public class CastleUI : MonoBehaviour
 {
-    private Button button;
-    [SerializeField] private Button visitButton;
-    [SerializeField] private Button attackButton;
-    [SerializeField] private Button defendButton;
-    [SerializeField] private Button sendButton;
+    public GameObject castleInformation;
 
     private float lastPacketSend;
     private float packetSendCooldown = 0.2f;
@@ -18,11 +14,9 @@ public class CastleUI : MonoBehaviour
     private void Start()
     {
         lastPacketSend = Time.time;
-        button = GetComponent<Button>();
-        button.onClick.AddListener(OnButtonClicked);
     }
 
-    private void OnButtonClicked()
+    public void OnButtonClicked()
     {
         if (GameUI.Instance.originSelect)
         {
@@ -47,6 +41,7 @@ public class CastleUI : MonoBehaviour
     {
         if (lastPacketSend + packetSendCooldown < Time.time)
         {
+            Debug.Log("Packet overload");
             GameManager.Instance.AttackServerRpc(int.Parse(gameObject.name), NetworkManager.Singleton.LocalClientId);
             lastPacketSend = Time.time;
         }      
@@ -60,5 +55,15 @@ public class CastleUI : MonoBehaviour
     public void Send()
     {
 
+    }
+
+    public void SetCastleInformation(GameObject castleInformationPrefab)
+    {
+        castleInformation = castleInformationPrefab;
+        Button[] buttons = castleInformation.GetComponentsInChildren<Button>();
+        buttons[0].onClick.AddListener(Visit);
+        buttons[1].onClick.AddListener(Attack);
+        buttons[2].onClick.AddListener(Defend);
+        buttons[3].onClick.AddListener(Send);
     }
 }

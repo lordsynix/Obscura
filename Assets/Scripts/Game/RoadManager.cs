@@ -1,9 +1,6 @@
 using System;
 using System.Collections.Generic;
-using Unity.Netcode;
-using UnityEditor.PackageManager;
 using UnityEngine;
-using UnityEngine.UI;
 
 public class RoadManager : MonoBehaviour
 {
@@ -55,28 +52,21 @@ public class RoadManager : MonoBehaviour
     {
         foreach (CrossRoad crossRoad in crossRoads)
         {
-            int srcIndex = crossRoad.involvedRoads[0];
-            for (int i = 1; i <  crossRoad.involvedRoads.Count; ++i)
+            List<int> involvedRoads = crossRoad.involvedRoads;
+            for (int i = 0; i < involvedRoads.Count - 1; i++)
             {
-                roadGraph.AddEdge(srcIndex, crossRoad.involvedRoads[i], roadGraph.GetNode(srcIndex).time);
-                roadGraph.AddEdge(crossRoad.involvedRoads[i], srcIndex, roadGraph.GetNode(crossRoad.involvedRoads[i]).time);
-            }
+                for (int j = i + 1; j < involvedRoads.Count; j++)
+                {
+                    roadGraph.AddEdge(involvedRoads[i], crossRoad.involvedRoads[j], roadGraph.GetNode(involvedRoads[i]).time);
+                    roadGraph.AddEdge(crossRoad.involvedRoads[j], involvedRoads[i], roadGraph.GetNode(crossRoad.involvedRoads[j]).time);
+                }
+            }           
         }
-
-        foreach (var node in roadGraph.GetGraph())
-        {
-            foreach (Tuple<Node, int> tuple in node.Value)
-            {
-                Debug.Log($"Node {node.Key.index} has an edge with node {tuple.Item1.index} with a weight of {node.Key.time}");
-            }
-        }
-        roadGraph.ShortestPath(roadGraph.GetNode(0), roadGraph.GetNode(roadGraph.GetGraph().Count - 1));
-
     }
 
     public bool RoadOccupied(int roadIndex)
     {
-        if (roadGraph.GetNode(roadIndex).castle == null)
+        if (roadGraph.GetNode(roadIndex).outpost == null)
         {
             return false;
         }
@@ -86,8 +76,11 @@ public class RoadManager : MonoBehaviour
     public void BuildCastle(int roadIndex, ulong clientId)
     {
         Node node = roadGraph.GetNode(roadIndex);
-        Castle castle = new Castle(10, 5, 0, 0, clientId);
-        node.castle = castle;
+
+        // Position index 2 for center
+        // Players start with 10 infantry and 5 artillery
+        Outpost outpost = new Outpost(roadIndex, 2, clientId, true, 10, 5, 0, 0);
+        node.outpost = outpost;
         node.center = clientId;
         GetComponent<GameUI>().BuildCastleUI(node, clientId);
     }
@@ -104,5 +97,10 @@ public class RoadManager : MonoBehaviour
     public Node GetNode(int roadIndex)
     {
         return roadGraph.GetNode(roadIndex);
+    }
+
+    public List<Node> GetShortestPath(Node src, Node dst)
+    {
+         return roadGraph.ShortestPath(src, dst);
     }
 }

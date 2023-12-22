@@ -1,7 +1,10 @@
+using Mono.Cecil.Cil;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using Unity.Collections;
+using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 
 public class RoadGraph
@@ -43,6 +46,11 @@ public class RoadGraph
 
     public int GetWeight(Node src, Node dst)
     {
+        if (src == null)
+        {
+            Debug.Log("Specified source is invalid!");
+            return int.MaxValue;
+        }
         if (adjacencyList[src] == null)
         {
             Debug.Log("Specified source is invalid!");
@@ -130,7 +138,7 @@ public class RoadGraph
         return;
     }
 
-    public Dictionary<Node, int> ShortestPath(Node src, Node dst)
+    public List<Node> ShortestPath(Node src, Node dst)
     {
         // Implementation of Dijkstra algorithm
         if (src == null)
@@ -144,39 +152,75 @@ public class RoadGraph
             return null;
         }
 
-        Dictionary<Node, int> shortestPath = new Dictionary<Node, int>();
+        Dictionary<Node, int> dist = new Dictionary<Node, int>();
+        Dictionary<Node, Node> pred = new Dictionary<Node, Node>();
+        List<Node> notVisited = new List<Node>();
 
-        Queue<Tuple<Node, int>> minHeap = new Queue<Tuple<Node, int>>();
-        minHeap.Enqueue(new Tuple<Node, int>(src, 0));
-
-        while (minHeap.Count > 0)
-        {
-            Tuple<Node, int> node1 = minHeap.Dequeue();
-            if (shortestPath.ContainsKey(node1.Item1))
-            {
-                continue;
-            }
-            // n1.item1 = Node, n2.item2 = weight
-            shortestPath[node1.Item1] = node1.Item2;
-
-            foreach (Tuple<Node, int> node in adjacencyList[node1.Item1])
-            {
-                if (!shortestPath.ContainsKey(node.Item1))
-                {
-                    minHeap.Enqueue(new Tuple<Node, int>(node.Item1, node1.Item2 + node.Item2));
-                }
-            }
-        }
-
+        // Initialize dictionaries
         foreach (var node in adjacencyList)
         {
-            if (!shortestPath.ContainsKey(node.Key))
+            if (node.Key == src) 
             {
-                shortestPath[node.Key] = - 1;
+                dist.Add(node.Key, 0);
             }
+            else
+            {
+                dist.Add(node.Key, int.MaxValue);
+            }
+            pred.Add(node.Key, null);
+            notVisited.Add(node.Key);
         }
 
-        return shortestPath;
+        Node currentNode = src;
+        while (currentNode != null)
+        {
+            // Remove visited nodes from list
+            notVisited.Remove(currentNode);
+
+            Node lowest = null;
+            // Discover all connections
+            foreach (var node in adjacencyList[currentNode])
+            {
+                // Change their distance if smaller than previously
+                if (node.Item2 + dist[currentNode] < dist[node.Item1])
+                {
+                    dist[node.Item1] = node.Item2 + dist[currentNode];
+
+                    // Save their predecessor
+                    pred[node.Item1] = currentNode;
+
+                    Debug.Log(node.Item1.index + " : " + dist[node.Item1]);
+                }
+
+                // Find not yet visited node with lowest distance
+                if (notVisited.Contains(node.Item1))
+                {
+                    if (lowest == null)
+                    {
+                        lowest = node.Item1;
+                    }
+                    if (dist[node.Item1] < dist[lowest])
+                    {
+                        lowest = node.Item1;
+                    }
+                }
+            }
+
+            currentNode = lowest;
+        }
+
+        Stack<Node> path = new Stack<Node> ();
+
+        // Get shortest path to dst node
+        Node predNode = dst;
+        while (predNode != src && predNode != null)
+        {
+            path.Push(predNode);
+            predNode = pred[predNode];
+        }
+        path.Push(src);
+
+        return path.ToList();
     }
 }
 
@@ -189,7 +233,7 @@ public class Node
     public ulong right;
     public ulong center;
 
-    public Castle castle;
+    public Outpost outpost;
 
     public Node(int time, int index)
     {
@@ -198,6 +242,6 @@ public class Node
         left = ulong.MaxValue;
         right = ulong.MaxValue;
         center = ulong.MaxValue;
-        castle = null;
+        outpost = null;
     }
 }

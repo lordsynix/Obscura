@@ -5,6 +5,8 @@ using UnityEngine.UI;
 using Unity.Netcode;
 using System.Collections;
 using UnityEditor.Experimental.GraphView;
+using System.Linq;
+using System;
 
 public class GameUI : MonoBehaviour
 {
@@ -15,6 +17,7 @@ public class GameUI : MonoBehaviour
     private bool information = false;
     private bool roadInformation = false;
     private RoadManager roadManager;
+    private RuntimeSpline runtimeSpline;
 
     [SerializeField] private Transform roadInformationContainer;
     [SerializeField] private GameObject roadInformationPrefab;
@@ -23,6 +26,7 @@ public class GameUI : MonoBehaviour
     [SerializeField] private GameObject castlePrefab;
 
     [SerializeField] private Transform gameOverlay;
+    [SerializeField] private GameObject castleInformationPrefab;
     private GameObject activeInformationPrefab;
 
     [SerializeField] private Text instructionText;
@@ -31,18 +35,29 @@ public class GameUI : MonoBehaviour
     [SerializeField] private List<InputField> troopInputs;
     [SerializeField] private Button originButton;
     [SerializeField] private Button targetButton;
+    private Outpost origin;
+    private Outpost target;
     public bool originSelect = false;
     public bool targetSelect = false;
+
+    private List<Node> path = new List<Node>();
+    [SerializeField] private int arrowResolution = 5;
 
     private void Start()
     {
         Instance = this;
         roadManager = GetComponent<RoadManager>();
+        runtimeSpline = GetComponent<RuntimeSpline>();
 
         for (int i = 0; i < troopSliders.Count; i++)
         {
             troopSliders[i].onValueChanged.AddListener(OnSliderValueChanged);
             troopInputs[i].onValueChanged.AddListener(OnTroopInputChanged);
+
+            // Default value if no origin selected
+            troopSliders[i].maxValue = 0;
+            troopInputs[i].ActivateInputField();
+            troopInputs[i].SetTextWithoutNotify(0.ToString());
         }
     }
 
@@ -186,24 +201,14 @@ public class GameUI : MonoBehaviour
     public void DisplayCastleOptions(GameObject castle)
     {
         Node node = roadManager.GetNode(int.Parse(castle.name));
-        string username = GameManager.Instance.networkDict[node.castle.ownerIndex].username.Value.ToString();
-        if (node.castle.ownerIndex == NetworkManager.Singleton.LocalClientId)
-        {
-            // If castle is allied
-            GameObject castleInformation = castle.transform.GetChild(0).gameObject;
-            castleInformation.SetActive(true);
-            activeInformationPrefab = castleInformation;
-            StartCoroutine(ItemAnimation(castleInformation.transform));
+        string username = GameManager.Instance.networkDict[node.outpost.ownerIndex].username.Value.ToString();
 
-            // Display username
-            castleInformation.GetComponentsInChildren<Text>()[0].text = username;
-        }
-        else
+        if (node.outpost.ownerIndex == NetworkManager.Singleton.LocalClientId)
         {
-            // If castle is foe
-            GameObject castleInformation = castle.transform.GetChild(0).gameObject;
-            castleInformation.SetActive(true);
+            GameObject castleInformation = Instantiate(castleInformationPrefab, gameOverlay);
+            castleInformation.transform.position = castle.transform.position;
             activeInformationPrefab = castleInformation;
+            castle.GetComponent<CastleUI>().SetCastleInformation(castleInformation);
             StartCoroutine(ItemAnimation(castleInformation.transform));
 
             // Display username
@@ -215,12 +220,18 @@ public class GameUI : MonoBehaviour
     {
         foreach (var item in itemContainer.GetComponentsInChildren<Image>())
         {
-            item.transform.localScale = Vector3.zero;
+            if (!item.GetComponent<Button>())
+            {
+                item.transform.localScale = Vector3.zero;
+            }
         }
         foreach (var item in itemContainer.GetComponentsInChildren<Image>())
         {
-            item.transform.DOScale(1f, 1f).SetEase(Ease.OutBounce);
-            yield return new WaitForSeconds(0.25f);
+            if (!item.GetComponent<Button>())
+            {
+                item.transform.DOScale(1f, 1f).SetEase(Ease.OutBounce);
+                yield return new WaitForSeconds(0.25f);
+            }
         }
     }
 
@@ -228,15 +239,13 @@ public class GameUI : MonoBehaviour
     {
         if (activeInformationPrefab != null)
         {
-            activeInformationPrefab.SetActive(false);
-            activeInformationPrefab = null;
+            Destroy(activeInformationPrefab);            
         }
     }
 
     public void EnableAttackUI()
     {
         attackPanel.SetActive(true);
-
     }
 
     public void OnPressOrigin()
@@ -255,35 +264,46 @@ public class GameUI : MonoBehaviour
         targetSelect = true;
     }
 
-    public void SelectOrigin(GameObject castle)
+    public void SelectOrigin(GameObject outpost)
     {
+        int roadIndex = int.Parse(outpost.name);
+        Node originNode = roadManager.GetNode(roadIndex);
+        origin = originNode.outpost;
+        Debug.Log(origin);
+
         attackPanel.SetActive(true);
         instructionText.gameObject.SetActive(false);
 
-        int roadIndex = int.Parse(castle.name);
-        Node node = roadManager.GetNode(roadIndex);
-        ulong clientId = node.castle.ownerIndex;
+        ulong clientId = origin.ownerIndex;
         string username = GameManager.Instance.networkDict[clientId].username.Value.ToString();
         originButton.GetComponentInChildren<Text>().text = username;
 
-        troopSliders[0].maxValue = node.castle.infantryCount;
-        troopSliders[1].maxValue = node.castle.artilleryCount;
-        troopSliders[2].maxValue = node.castle.bearCount;
-        troopSliders[3].maxValue = node.castle.mamoothCount;
+        troopSliders[0].maxValue = originNode.outpost.infantryCount;
+        troopSliders[1].maxValue = originNode.outpost.artilleryCount;
+        troopSliders[2].maxValue = originNode.outpost.bearCount;
+        troopSliders[3].maxValue = originNode.outpost.mamoothCount;
 
         originSelect = false;
     }
 
-    public void SelectTarget(GameObject castle)
+    public void SelectTarget(GameObject outpost)
     {
+        int roadIndex = int.Parse(outpost.name);
+        Node targetNode = roadManager.GetNode(roadIndex);
+        target = targetNode.outpost;
+
         attackPanel.SetActive(true);
         instructionText.gameObject.SetActive(false);
-
-        int roadIndex = int.Parse(castle.name);
-        Node node = roadManager.GetNode(roadIndex);
-        ulong clientId = node.castle.ownerIndex;
+      
+        ulong clientId = origin.ownerIndex;
         string username = GameManager.Instance.networkDict[clientId].username.Value.ToString();
         targetButton.GetComponentInChildren<Text>().text = username;
+
+        // Calculate the shortest path from origin to target
+        path = roadManager.GetShortestPath(roadManager.GetNode(origin.roadIndex), targetNode);
+        CreateArrowPoints(path);
+
+        //CalculateTime();
 
         targetSelect = false;
     }
@@ -292,11 +312,18 @@ public class GameUI : MonoBehaviour
     {
         for (int i = 0; i < troopInputs.Count; i++)
         {
-            if (int.TryParse(troopInputs[i].text, out int value))
+            if (int.TryParse(troopInputs[i].text, out int fieldValue))
             {
-                if (value != troopSliders[i].value)
+                if (origin == null)
                 {
-                    troopInputs[i].text = value.ToString();
+                    troopSliders[i].SetValueWithoutNotify(0);
+                    troopInputs[i].SetTextWithoutNotify(0.ToString());
+                    return;
+                }
+
+                if (fieldValue != troopSliders[i].value)
+                {
+                    troopInputs[i].SetTextWithoutNotify(troopSliders[i].value.ToString());
                 }
             }
         }
@@ -310,14 +337,42 @@ public class GameUI : MonoBehaviour
             {
                 if (value != troopSliders[i].value)
                 {
-                    troopSliders[i].value = value;
+                    if (origin == null)
+                    {
+                        troopSliders[i].SetValueWithoutNotify(0);
+                        troopInputs[i].SetTextWithoutNotify(0.ToString());
+                        return;
+                    }
+
+                    if (value <= troopSliders[i].maxValue)
+                    {
+                        troopSliders[i].SetValueWithoutNotify(value);
+                    }
+                    else
+                    {
+                        troopInputs[i].SetTextWithoutNotify(troopSliders[i].maxValue.ToString());
+                        troopSliders[i].value = troopSliders[i].maxValue;
+                    }                                       
                 }
             }
         }
     }
 
-    public void OnPressAttack()
+    private void CreateArrowPoints(List<Node> path)
     {
-        
+        runtimeSpline.GetSplineValues(path, arrowResolution, out List<Vector3> verts, out List<Vector3> tangents);
+
+        DisplayArrows(verts);
+
+    }
+
+    private void DisplayArrows(List<Vector3> arrowPoints)
+    {
+        foreach (Vector3 position in arrowPoints)
+        {
+            GameObject sphere = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            sphere.transform.position = position;
+            sphere.transform.localScale = new Vector3(5, 5, 5);
+        }
     }
 }

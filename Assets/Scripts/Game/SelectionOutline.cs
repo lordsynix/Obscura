@@ -1,6 +1,9 @@
+using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.UIElements;
+using UnityEngine.WSA;
 
 public class SelectionOutline : MonoBehaviour
 {
@@ -17,7 +20,10 @@ public class SelectionOutline : MonoBehaviour
     {
         if (highlight != null)
         {
-            highlight.gameObject.GetComponent<Outline>().enabled = false;
+            if (!highlight.gameObject.GetComponent<Outline>().stay)
+            {
+                highlight.gameObject.GetComponent<Outline>().enabled = false;
+            }
             highlight = null;
         }
         if (selection[0] != null)
@@ -57,8 +63,6 @@ public class SelectionOutline : MonoBehaviour
             }
             else
             {
-                GameUI.Instance.DestroyCastleInformation();
-
                 if (selection[0] == null) return;
                 selection[0].GetComponent<Outline>().enabled = false;
                 selection[0] = null;
@@ -131,5 +135,4 @@ public class SelectionOutline : MonoBehaviour
             }
         }
     }
-
 }

@@ -21,6 +21,7 @@ public class GameManager : NetworkBehaviour
 
     public Text countdownText;
     public Text actionText;
+    private bool cancel;
 
     public List<string> colors = new List<string>() { "Red", "Blue", "Green", "Yellow", "Magenta", "Cyan" };
 
@@ -203,11 +204,16 @@ public class GameManager : NetworkBehaviour
 
         // Give players time to think based on lobby settings
         int countdown = int.Parse(PlayerData.Instance.currentLobby.Data["Time"].Value);
-        while (countdown > 0)
+        while (countdown > 0 && !cancel)
         {
             countdownText.text = countdown.ToString();
             yield return new WaitForSeconds(1);
             countdown--;
+        }
+
+        if (cancel)
+        {
+            cancel = false;
         }
         
         countdownText.text = "0";
@@ -286,6 +292,7 @@ public class GameManager : NetworkBehaviour
     [ClientRpc] private void BuildCastleClientRpc(int roadIndex, ulong clientId)
     {
         roadManager.BuildCastle(roadIndex, clientId);
+        cancel = true;
     }
 
     [ClientRpc] private void DisplayErrorClientRpc(string error, ulong clientId)
@@ -297,16 +304,12 @@ public class GameManager : NetworkBehaviour
         }
     }
 
-    public void DeselectCastle()
-    {
-        GameUI.Instance.DestroyCastleInformation();
-    }
-
     [ServerRpc(RequireOwnership = false)] public void AttackServerRpc(int roadIndex, ulong attackerClientId)
     {
         
         if (moveQueue[currentTurnIndex] == attackerClientId)
         {
+            Debug.Log("Attack permission granted.");
             AttackClientRpc(attackerClientId);
         }
         // If it's not attackers turn, return error.
@@ -320,6 +323,7 @@ public class GameManager : NetworkBehaviour
     {
         if (NetworkManager.Singleton.LocalClientId == attackerClientId)
         {
+            Debug.Log("Enabling attack UI");
             GameUI.Instance.EnableAttackUI();
         }
     }

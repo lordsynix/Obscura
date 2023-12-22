@@ -20659,6 +20659,7 @@ GameObject:
   - component: {fileID: 1154696702}
   - component: {fileID: 1154696703}
   - component: {fileID: 1154696704}
+  - component: {fileID: 1154696705}
   m_Layer: 0
   m_Name: GameManager
   m_TagString: Untagged
@@ -28749,6 +28750,8 @@ MonoBehaviour:
   castlePrefab: {fileID: 8658164183315218823, guid: 9224561f78569834095c9a75df8fe937,
     type: 3}
   gameOverlay: {fileID: 1595909834}
+  castleInformationPrefab: {fileID: 890719484050731597, guid: e97f751ae03775d49885a33ae28519a9,
+    type: 3}
   instructionText: {fileID: 2052484498}
   attackPanel: {fileID: 1084012512}
   troopSliders:
@@ -28765,6 +28768,20 @@ MonoBehaviour:
   targetButton: {fileID: 391929135}
   originSelect: 0
   targetSelect: 0
+  arrowResolution: 5
+--- !u!114 &1154696705
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1154696695}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d3ec5c93a74997043b12e12b76a1831d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  splineContainer: {fileID: 209059659424303468}
 --- !u!1 &1156742883
 GameObject:
   m_ObjectHideFlags: 0
@@ -36573,9 +36590,9 @@ RectTransform:
   - {fileID: 559446630}
   - {fileID: 766773548}
   - {fileID: 1195632176}
-  - {fileID: 1973346349}
   - {fileID: 108314607}
   - {fileID: 599118992}
+  - {fileID: 1973346349}
   - {fileID: 1084012513}
   - {fileID: 2052484496}
   m_Father: {fileID: 1948134706}
@@ -52265,13 +52282,14 @@ GameObject:
   - component: {fileID: 1595052828692960926}
   - component: {fileID: 4374786188765777228}
   - component: {fileID: 7107363032962344810}
+  - component: {fileID: 7107363032962344811}
   m_Layer: 0
   m_Name: Roads
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!23 &4374786188765777228
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -70247,6 +70265,19 @@ MonoBehaviour:
   crossRoadContainer: {fileID: 1082839383697685083}
   crossRoadMaterial: {fileID: 2100000, guid: 78189b7dd80177242b171080d66e5082, type: 2}
   colliderFrequency: 8
+--- !u!114 &7107363032962344811
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4133482163328267625}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d3ec5c93a74997043b12e12b76a1831d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  splineContainer: {fileID: 0}
 --- !u!1 &8521187033586837333
 GameObject:
   m_ObjectHideFlags: 0
