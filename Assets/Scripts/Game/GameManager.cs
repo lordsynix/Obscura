@@ -9,17 +9,19 @@ public class GameManager : NetworkBehaviour
     public static GameManager Instance;
     private RoomManager roomManager;
     private RoadManager roadManager;
+    private GameEvents gameEvents;
+
     public GameObject gameOverlayPanel;
     private float maxConnectionTime = 15;
     private bool started = false;
 
-    private Dictionary<ulong, PlayerNetwork> networkDict = new();
+    public Dictionary<ulong, PlayerNetwork> networkDict = new();
     private List<ulong> moveQueue = new List<ulong>();
-    public Text countdownText;
-    public Text actionText;
     private int currentTurnIndex = 0;
 
-    private GameEvents gameEvents;
+    public Text countdownText;
+    public Text actionText;
+    private bool cancel;
 
     public List<string> colors = new List<string>() { "Red", "Blue", "Green", "Yellow", "Magenta", "Cyan" };
 
@@ -122,6 +124,7 @@ public class GameManager : NetworkBehaviour
         {
             networkDict.Add(player.GetComponent<NetworkObject>().OwnerClientId, player.GetComponent<PlayerNetwork>());
         }
+        GameUI.Instance.BuildPlayerInformationPanel(networkDict);
         roomManager.roomPanel.SetActive(false);
         gameOverlayPanel.SetActive(true);
         StartCoroutine(Countdown());
@@ -201,11 +204,16 @@ public class GameManager : NetworkBehaviour
 
         // Give players time to think based on lobby settings
         int countdown = int.Parse(PlayerData.Instance.currentLobby.Data["Time"].Value);
-        while (countdown > 0)
+        while (countdown > 0 && !cancel)
         {
             countdownText.text = countdown.ToString();
             yield return new WaitForSeconds(1);
             countdown--;
+        }
+
+        if (cancel)
+        {
+            cancel = false;
         }
         
         countdownText.text = "0";
@@ -284,6 +292,7 @@ public class GameManager : NetworkBehaviour
     [ClientRpc] private void BuildCastleClientRpc(int roadIndex, ulong clientId)
     {
         roadManager.BuildCastle(roadIndex, clientId);
+        cancel = true;
     }
 
     [ClientRpc] private void DisplayErrorClientRpc(string error, ulong clientId)
@@ -292,6 +301,28 @@ public class GameManager : NetworkBehaviour
         {
             GameError.Instance.DisplayError(error);
             gameEvents.EnableCastlePlacement();
+        }
+    }
+
+    [ServerRpc(RequireOwnership = false)] public void AttackServerRpc(int roadIndex, ulong attackerClientId)
+    {
+        
+        if (moveQueue[currentTurnIndex] == attackerClientId)
+        {
+            AttackClientRpc(attackerClientId);
+        }
+        // If it's not attackers turn, return error.
+        else
+        {
+            DisplayErrorClientRpc("It is not your turn.", attackerClientId);
+        }
+    }
+
+    [ClientRpc] private void AttackClientRpc(ulong attackerClientId)
+    {
+        if (NetworkManager.Singleton.LocalClientId == attackerClientId)
+        {
+            GameUI.Instance.EnableAttackUI();
         }
     }
 }

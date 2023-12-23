@@ -6,6 +6,7 @@ public class Outline : MonoBehaviour
 {
     private Material previousMaterial;
     public Material highlightMaterial;
+    public bool stay = false;
 
     private void OnEnable()
     {

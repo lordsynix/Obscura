@@ -21,4 +21,14 @@ public class MenuManager : MonoBehaviour
             errorMessage.text = "Username exceeded character limit of 15!";
         }
     }
+
+    public void OnClickSettings()
+    {
+        PlayerData.Instance.ToggleSettings();
+    }
+
+    public void OnClickQuit()
+    {
+        Application.Quit();
+    }
 }
