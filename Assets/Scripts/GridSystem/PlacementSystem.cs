@@ -11,13 +11,9 @@ public class PlacementSystem : MonoBehaviour
     [SerializeField] private ObjectsDatabaseSO database;
     [SerializeField] private GameObject gridVisualization;
 
-    [SerializeField] private GameObject cellHighlightPrefab;
-    [SerializeField] private Material cellHighlightMaterial;
-
     private GridData gridData;
 
-    [SerializeField]
-    private PreviewSystem preview;
+    [SerializeField] private PreviewSystem preview;
 
     [SerializeField] private ObjectPlacer objectPlacer;
 
@@ -68,7 +64,7 @@ public class PlacementSystem : MonoBehaviour
         buildingState.OnAction(gridPosition);
     }
 
-    private void StopPlacement()
+    public void StopPlacement()
     {
         if (buildingState == null)
             return;
@@ -80,30 +76,9 @@ public class PlacementSystem : MonoBehaviour
         buildingState = null;
     }
 
-    public void GetTarget()
+    public GridData GetGridData()
     {
-        Vector3Int startPos = new(-10, 0, -10);
-        var target = SearchAlgorithm.GetTarget(startPos, gridData);
-        var path = SearchAlgorithm.GetPath(startPos, target, gridData);
-
-        StartCoroutine(VisualizePath(path));
-    }
-
-    IEnumerator VisualizePath(List<Vector3Int> path)
-    {
-        var pos = grid.CellToWorld(path[0]);
-
-        var go = Instantiate(cellHighlightPrefab, pos, Quaternion.identity);
-        go.GetComponentInChildren<MeshRenderer>().material = cellHighlightMaterial;
-        go.SetActive(true);
-
-        for (int i = 0; i < path.Count; i++)
-        {
-            go.transform.position = path[i];
-            yield return new WaitForSeconds(0.5f);
-        }
-
-        Destroy(go);
+        return gridData;
     }
 
     private void Update()
@@ -224,4 +199,5 @@ public class PlacementSystem : MonoBehaviour
         }
         objectPlacer.UpdateWall(gridData.GetRepresentationIndex(gridPosition), prefab, gridPosition, position, rotation);
     }
+
 }

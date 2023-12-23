@@ -62,8 +62,16 @@ public static class SearchAlgorithm
         return target;
     }
     
-    public static List<Vector3Int> GetPath(Vector3Int startPosition, Vector3Int targetPosition, GridData gridData)
+    public static List<Vector3Int> GetPath(Vector3Int startPosition, GridData gridData)
     {
+        Vector3Int targetPosition = GetTarget(startPosition, gridData);
+
+        if (targetPosition.x == int.MaxValue)
+        {
+            Debug.LogError($"NoTargetException: Make sure a unit has a target");
+            return new();
+        }
+
         List<GridNode> openNodes = new();
         List<GridNode> closedNodes = new();
         openNodes.Add(new(startPosition, new(int.MaxValue, 0, 0), 0, GetDistance(startPosition, targetPosition)));
