@@ -5,7 +5,6 @@ using UnityEngine;
 public class Outpost
 {
     public int roadIndex;
-    public int positionIndex;
     public ulong ownerIndex;
     public bool castle;
 
@@ -14,10 +13,9 @@ public class Outpost
     public int bearCount;
     public int mamoothCount;
 
-    public Outpost(int roadIndex, int positionIndex, ulong ownerIndex, bool castle, int infantryCount, int artilleryCount, int bearCount, int mamoothCount)
+    public Outpost(int roadIndex, ulong ownerIndex, bool castle, int infantryCount, int artilleryCount, int bearCount, int mamoothCount)
     {
         this.roadIndex = roadIndex;
-        this.positionIndex = positionIndex;
         this.ownerIndex = ownerIndex;
         this.castle = castle;
 
@@ -27,10 +25,9 @@ public class Outpost
         this.mamoothCount = mamoothCount;
     }
 
-    public Outpost(int roadIndex, int positionIndex, ulong ownerIndex, bool castle)
+    public Outpost(int roadIndex, ulong ownerIndex, bool castle)
     {
-        this.roadIndex = roadIndex;
-        this.positionIndex = positionIndex;
+        this.roadIndex = roadIndex;        
         this.ownerIndex = ownerIndex;
         this.castle = castle;
 

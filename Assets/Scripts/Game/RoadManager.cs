@@ -79,9 +79,8 @@ public class RoadManager : MonoBehaviour
 
         // Position index 2 for center
         // Players start with 10 infantry and 5 artillery
-        Outpost outpost = new Outpost(roadIndex, 2, clientId, true, 10, 5, 0, 0);
+        Outpost outpost = new Outpost(roadIndex, clientId, true, 10, 5, 0, 0);
         node.outpost = outpost;
-        node.center = clientId;
         GetComponent<GameUI>().BuildCastleUI(node, clientId);
     }
     
@@ -102,5 +101,15 @@ public class RoadManager : MonoBehaviour
     public List<Node> GetShortestPath(Node src, Node dst)
     {
          return roadGraph.ShortestPath(src, dst);
+    }
+
+    public bool HasPath(List<Node> nodes, Node origin, Node target)
+    {
+        return roadGraph.HasPath(nodes, origin, target);
+    }
+
+    public int GetPathTime(List<Node> nodes)
+    {
+        return roadGraph.GetPathTime(nodes);
     }
 }

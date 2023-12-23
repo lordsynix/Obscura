@@ -2,14 +2,13 @@ using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.EventSystems;
-using UnityEngine.UIElements;
-using UnityEngine.WSA;
 
 public class SelectionOutline : MonoBehaviour
 {
     private Transform highlight;
     private RaycastHit hit;
     private GameObject[] selection = new GameObject[2];
+    private List<GameObject> pathSelection = new List<GameObject>();
     [SerializeField] private Material yellowHighlightMaterial;
     [SerializeField] private Material redHighlightMaterial;
 
@@ -119,20 +118,76 @@ public class SelectionOutline : MonoBehaviour
             GameManager.Instance.BuildCastleServerRpc(int.Parse(highlight.gameObject.name), NetworkManager.Singleton.LocalClientId);
             return;
         }
-        if (selection[0] == null)
+        if (GameUI.Instance.pathSelect)
         {
-            selection[0] = highlight.gameObject;
-            selection[0].GetComponent<Outline>().enabled = true;
-            selection[0].GetComponent<Outline>().highlightMaterial = yellowHighlightMaterial;
+            pathSelection.Add(highlight.gameObject);
+            highlight.GetComponent<Outline>().highlightMaterial = yellowHighlightMaterial;
+            highlight.GetComponent<Outline>().enabled = true;
+            highlight.GetComponent<Outline>().stay = true;
+
+            GameUI.Instance.ValidatePath(pathSelection);
         }
         else
         {
-            if (highlight.gameObject != selection[0] && selection[1] == null)
+            if (selection[0] == null)
             {
-                selection[1] = highlight.gameObject;
-                selection[1].GetComponent<Outline>().enabled = true;
-                selection[1].GetComponent<Outline>().highlightMaterial = redHighlightMaterial;
+                selection[0] = highlight.gameObject;
+                selection[0].GetComponent<Outline>().enabled = true;
+                selection[0].GetComponent<Outline>().highlightMaterial = yellowHighlightMaterial;
+            }
+            else
+            {
+                if (highlight.gameObject != selection[0] && selection[1] == null)
+                {
+                    selection[1] = highlight.gameObject;
+                    selection[1].GetComponent<Outline>().enabled = true;
+                    selection[1].GetComponent<Outline>().highlightMaterial = redHighlightMaterial;
+                }
             }
         }
+    }
+
+    public void ClearSelection()
+    {
+        foreach (GameObject road in pathSelection)
+        {            
+            road.GetComponent<Outline>().highlightMaterial = yellowHighlightMaterial;
+            road.GetComponent<Outline>().enabled = false;
+            road.GetComponent<Outline>().stay = false;
+        }
+        pathSelection.Clear();
+    }
+
+    public void HighlightPath()
+    {
+        foreach (GameObject road in pathSelection)
+        {
+            if (road.GetComponent<Outline>())
+            {
+                road.GetComponent<Outline>().enabled = false;
+                road.GetComponent<Outline>().highlightMaterial = redHighlightMaterial;
+                road.GetComponent<Outline>().enabled = true;
+                road.GetComponent<Outline>().stay = true;
+            }
+            else
+            {
+                Outline outline = road.AddComponent<Outline>();
+                outline.enabled = false;
+                outline.highlightMaterial = redHighlightMaterial;
+                outline.enabled = true;
+                outline.stay = true;
+            }
+        }
+    }
+
+    public void HighlightPath(List<Node> nodes)
+    {
+        ClearSelection();
+        foreach (Node node in nodes)
+        {
+            pathSelection.Add(GetComponent<RoadManager>().roadObjects[node]);
+            Debug.Log(GetComponent<RoadManager>().roadObjects[node].name);
+        }
+        HighlightPath();
     }
 }

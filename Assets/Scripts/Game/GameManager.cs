@@ -309,7 +309,6 @@ public class GameManager : NetworkBehaviour
         
         if (moveQueue[currentTurnIndex] == attackerClientId)
         {
-            Debug.Log("Attack permission granted.");
             AttackClientRpc(attackerClientId);
         }
         // If it's not attackers turn, return error.
@@ -323,7 +322,6 @@ public class GameManager : NetworkBehaviour
     {
         if (NetworkManager.Singleton.LocalClientId == attackerClientId)
         {
-            Debug.Log("Enabling attack UI");
             GameUI.Instance.EnableAttackUI();
         }
     }

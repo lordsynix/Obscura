@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.UI;
@@ -18,17 +16,20 @@ public class CastleUI : MonoBehaviour
 
     public void OnButtonClicked()
     {
-        if (GameUI.Instance.originSelect)
+        if (castleInformation == null)
         {
-            GameUI.Instance.SelectOrigin(gameObject);
-        }
-        if (GameUI.Instance.targetSelect)
-        {
-            GameUI.Instance.SelectTarget(gameObject);
-        }
-        if (GameUI.Instance.originSelect == false && GameUI.Instance.targetSelect == false)
-        {
-            GameUI.Instance.DisplayCastleOptions(gameObject);
+            if (GameUI.Instance.originSelect)
+            {
+                GameUI.Instance.SelectOrigin(gameObject);
+            }
+            if (GameUI.Instance.targetSelect)
+            {
+                GameUI.Instance.SelectTarget(gameObject);
+            }
+            if (GameUI.Instance.originSelect == false && GameUI.Instance.targetSelect == false)
+            {
+                GameUI.Instance.DisplayCastleOptions(gameObject);
+            }
         }
     }
 
@@ -41,7 +42,6 @@ public class CastleUI : MonoBehaviour
     {
         if (lastPacketSend + packetSendCooldown < Time.time)
         {
-            Debug.Log("Packet overload");
             GameManager.Instance.AttackServerRpc(int.Parse(gameObject.name), NetworkManager.Singleton.LocalClientId);
             lastPacketSend = Time.time;
         }      

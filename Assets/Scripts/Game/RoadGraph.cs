@@ -1,10 +1,6 @@
-using Mono.Cecil.Cil;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using Unity.Collections;
-using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 
 public class RoadGraph
@@ -42,29 +38,6 @@ public class RoadGraph
         }
         Debug.Log($"Didn't find node of index {index}!");
         return null;
-    }
-
-    public int GetWeight(Node src, Node dst)
-    {
-        if (src == null)
-        {
-            Debug.Log("Specified source is invalid!");
-            return int.MaxValue;
-        }
-        if (adjacencyList[src] == null)
-        {
-            Debug.Log("Specified source is invalid!");
-            return int.MaxValue;
-        }
-        foreach (Tuple<Node, int> edge in adjacencyList[src])
-        {
-            if (edge.Item1 == dst)
-            {
-                return edge.Item2;
-            }
-        }
-        Debug.Log("Specified destination is invalid!");
-        return int.MaxValue;
     }
 
     public void AddEdge(Node src, Node dst, int weight)
@@ -108,6 +81,53 @@ public class RoadGraph
         }
 
         adjacencyList[src].Add(new Tuple<Node, int>(dst, weight));
+    }
+
+    public int GetWeight(Node src, Node dst)
+    {
+        if (src == null)
+        {
+            Debug.Log("Specified source is invalid!");
+            return int.MaxValue;
+        }
+        if (adjacencyList[src] == null)
+        {
+            Debug.Log("Specified source is invalid!");
+            return int.MaxValue;
+        }
+        foreach (Tuple<Node, int> edge in adjacencyList[src])
+        {
+            if (edge.Item1 == dst)
+            {
+                return edge.Item2;
+            }
+        }
+        Debug.Log("Specified destination is invalid!");
+        return int.MaxValue;
+    }
+
+    public bool HasEdge(Node src, Node dst)
+    {
+        if (src == null)
+        {
+            Debug.Log("Specified source index is invalid!");
+            return false;
+        }
+
+        if (dst == null)
+        {
+            Debug.Log("Specified destination index is invalid!");
+            return false;
+        }
+
+        foreach (Tuple<Node, int> edge in adjacencyList[src])
+        {
+            if (edge.Item1 == dst)
+            {
+                return true;
+            }
+        }
+        return false;
     }
 
 
@@ -222,16 +242,95 @@ public class RoadGraph
 
         return path.ToList();
     }
+
+    public bool HasPath(List<Node> nodes, Node origin, Node target)
+    {
+        // Sort the path so that origin and target are at start and end
+        nodes = SortNodes(nodes, origin, target);
+
+        if (nodes == null) return false;
+
+        for (int i = 0; i < nodes.Count; i++)
+        {
+            if (i < nodes.Count - 1)
+            {
+                if (HasEdge(nodes[i], nodes[i + 1]))
+                {
+                    Debug.Log($"Edge exists from {nodes[i].index} to {nodes[i + 1].index}.");
+                }
+                else
+                {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    public List<Node> SortNodes(List<Node> nodes, Node orgin, Node target)
+    {
+        // Bring origin and target to first and last
+        for (int i = 0; i < nodes.Count; i++)
+        {
+            if (nodes[i] == orgin)
+            {
+                Node temp = nodes[0];
+                nodes[0] = nodes[i];
+                nodes[i] = temp;
+            }
+            if (nodes[i] == target)
+            {
+                Node temp = nodes[nodes.Count - 1];
+                nodes[nodes.Count - 1] = nodes[i];
+                nodes[i] = temp;
+            }
+        }
+
+        // Check if node i has and edge with node j
+        for (int i = 0; i < nodes.Count - 2; i++)
+        {
+            int edgeCount = 0;
+            for (int j = i + 1; j < nodes.Count - 1; j++)
+            {
+                if (HasEdge(nodes[i], nodes[j]))
+                {
+                    edgeCount++;
+
+                    if (edgeCount > 1)
+                    {
+                        return null;
+                    }
+
+                    Node temp = nodes[i + 1];
+                    nodes[i + 1] = nodes[j];
+                    nodes[j] = temp;
+                }
+            }
+            if (edgeCount == 0)
+            {
+                return null;
+            }
+        }
+        return nodes;
+    }
+
+    public int GetPathTime(List<Node> nodes)
+    {
+        int time = 0;
+        foreach (Node node in nodes)
+        {
+            time += node.time;
+        }
+        return time;
+    }
 }
+
+
 
 public class Node 
 { 
     public int time;
     public int index;
-
-    public ulong left;
-    public ulong right;
-    public ulong center;
 
     public Outpost outpost;
 
@@ -239,9 +338,6 @@ public class Node
     {
         this.time = time;
         this.index = index;        
-        left = ulong.MaxValue;
-        right = ulong.MaxValue;
-        center = ulong.MaxValue;
         outpost = null;
     }
 }
